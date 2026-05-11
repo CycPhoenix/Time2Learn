@@ -1,0 +1,42 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build outputs
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+
+# NuGet
+packages/
+*.nupkg
+project.lock.json
+
+# ASP.NET
+App_Data/
+*.pubxml
+*.pubxml.user
+PublishScripts/
+
+# Windows
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# macOS
+.DS_Store
+.AppleDouble
+
+# Logs & temp
+*.log
+*.tmp
+*.temp
+
+# Secrets — never commit
+Web.config.user
+*.env
+secrets.json
