@@ -9,7 +9,7 @@
 | Name | Role |
 |---|---|
 | Eee Kong Siong | Project Manager |
-| Brosnan Ban Cong Yin | Backend Developer |
+| Ban Cong Yin Brosnan | Backend Developer |
 | Ng Wan Teng | Backend Developer |
 | Lai Kah Fon | Frontend Developer |
 | Lee Wei Kee | Frontend Developer |
