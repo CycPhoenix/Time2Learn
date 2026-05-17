@@ -71,12 +71,12 @@ namespace Time2Learn
                 {
                     new System.Data.SqlClient.SqlParameter("@LID", _lessonID)
                 });
+
             if (q.Rows.Count > 0)
             {
                 litProblem.Text = q.Rows[0]["QuestionPrompt"].ToString();
                 string starter = q.Rows[0]["StarterCode"]?.ToString();
                 if (!string.IsNullOrEmpty(starter))
-                {
                     txtCode.Text = starter;
                 }
                 else
@@ -85,7 +85,6 @@ namespace Time2Learn
                 }
                 pnlSampleInput.Visible = false;
                 pnlSampleOutput.Visible = false;
-            }
 
             object done = DBHelper.ExecuteScalar("SELECT COUNT(*) FROM Lesson_Progress WHERE EnrollmentID = @EID AND LessonID = @LID",
                 new System.Data.SqlClient.SqlParameter[]
@@ -114,9 +113,10 @@ namespace Time2Learn
                     new System.Data.SqlClient.SqlParameter("@EID", enrollmentID),
                     new System.Data.SqlClient.SqlParameter("@LID", _lessonID)
                 });
+
             if (Convert.ToInt32(exists) == 0)
             {
-                DBHelper.ExecuteNonQuery("INSERT INTO Lesson_Progress (EnrollmentID, LessonID, CompletedDate) VALUES (@EID, @LID, GETDATE())",
+                DBHelper.ExecuteNonQuery("INSERT INTO Lesson_Progress (EnrollmentID, LessonID, CompletedDate, IsCompleted) VALUES (@EID, @LID, GETDATE(), 1)",
                     new System.Data.SqlClient.SqlParameter[]
                     {
                         new System.Data.SqlClient.SqlParameter("@EID", enrollmentID),
