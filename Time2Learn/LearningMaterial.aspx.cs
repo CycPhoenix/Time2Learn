@@ -52,7 +52,7 @@ namespace Time2Learn
                 });
             int enrollmentID = eidObj != null ? Convert.ToInt32(eidObj) : 0;
 
-            DataTable course = DBHelper.ExecuteQuery(@"SELECT c.CourseTitle, c.DifficultyLevel, cat.CategoryName, e.OverallProgressPercentage FROM Courses c INNER JOIN categories cat ON c.CategoryID = cat.CategoryID INNER JOIN Enrollments e ON c.CourseID = e.CourseID AND e.UserID = @UID WHERE c.CourseID = @CID",
+            DataTable course = DBHelper.ExecuteQuery(@"SELECT c.CourseTitle, c.DifficultyLevel, cat.CategoryName, e.OverallProgressPercentage FROM Courses c INNER JOIN Categories cat ON c.CategoryID = cat.CategoryID INNER JOIN Enrollments e ON c.CourseID = e.CourseID AND e.UserID = @UID WHERE c.CourseID = @CID",
                 new System.Data.SqlClient.SqlParameter[]
                 {
                     new System.Data.SqlClient.SqlParameter("@UID", userID),
@@ -71,12 +71,12 @@ namespace Time2Learn
 
             litCourseTitle.Text = title;
             litSidebarTitle.Text = title;
-            litCourseMeta.Text = r["CategoryName"]+ " · " + r["DifficultyLevel"];
+            litCourseMeta.Text = r["CategoryName"] + " · " + r["DifficultyLevel"];
             litSidebarPct.Text = pct.ToString();
             litSidebarPctStyle.Text = pct.ToString();
             litProgressPct.Text = pct.ToString();
 
-            DataTable lessons = DBHelper.ExecuteQuery(@"SELECT l.LessonID, l.LessonTitle, l.LessonOrder, ISNULL((SELECT TOP 1 1 FROM Lesson_Progress lp WHERE lp.LessonID = l.LessonID AND lp.EnrollmentID = @EID), 0) AS IsCompleted FROM Lessons l WHERE l.CourseID = @CID ORDER BY l.LessonOrder",
+            DataTable lessons = DBHelper.ExecuteQuery(@"SELECT l.LessonID, l.LessonTitle, l.LessonOrder, l.LessonType, ISNULL((SELECT TOP 1 1 FROM Lesson_Progress lp WHERE lp.LessonID = l.LessonID AND lp.EnrollmentID = @EID), 0) AS IsCompleted FROM Lessons l WHERE l.CourseID = @CID ORDER BY l.LessonOrder",
                 new System.Data.SqlClient.SqlParameter[]
                 {
                     new System.Data.SqlClient.SqlParameter("@EID", enrollmentID),
@@ -99,7 +99,7 @@ namespace Time2Learn
             if (total > 0)
             {
                 int newPct = (int)Math.Round((double)done / total * 100);
-                DBHelper.ExecuteQuery("UPDATE Enrollments SET OverallProgressPercentage = @Pct WHERE EnrollmentID = @EID",
+                DBHelper.ExecuteNonQuery("UPDATE Enrollments SET OverallProgressPercentage = @Pct WHERE EnrollmentID = @EID",
                     new System.Data.SqlClient.SqlParameter[]
                     {
                         new System.Data.SqlClient.SqlParameter("@Pct", newPct),
@@ -111,9 +111,26 @@ namespace Time2Learn
             }
         }
 
-        protected string GetLessonUrl(object lessonID)
+        protected string GetLessonUrl(object lessonID, object lessonType)
         {
-            return "CurriculumVideo.aspx?lessonId=" + lessonID + "&courseId=" + _courseID;
+            string type = lessonType != null ? lessonType.ToString() : "Video";
+            string page;
+            switch (type)
+            {
+                case "Quiz":
+                    page = "CurriculumQuiz.aspx";
+                    break;
+                case "Coding":
+                    page = "CurriculumCoding.aspx";
+                    break;
+                case "Lab":
+                    page = "CurriculumLab.aspx";
+                    break;
+                default:
+                    page = "CurriculumVideo.aspx";
+                    break;
+            }
+            return page + "?lessonId=" + lessonID + "&courseID=" + _courseID;
         }
     }
 }
