@@ -78,6 +78,7 @@ namespace Time2Learn
                 {
                     new System.Data.SqlClient.SqlParameter("@LID", _lessonID)
                 });
+
             litQCount.Text = questions.Rows.Count.ToString();
             rptQuestions.DataSource = questions;
             rptQuestions.DataBind();
@@ -140,12 +141,13 @@ namespace Time2Learn
                 });
             if (Convert.ToInt32(exists) == 0)
             {
-                DBHelper.ExecuteNonQuery("INSERT INTO Lesson_Progress (EnrollmentID, LessonID, CompletedDate) VALUES (@EID, @LID, GETDATE())",
+                DBHelper.ExecuteNonQuery("INSERT INTO Lesson_Progress (EnrollmentID, LessonID, CompletedDate, IsCompleted) VALUES (@EID, @LID, GETDATE(), 1)",
                     new System.Data.SqlClient.SqlParameter[]
                     {
                         new System.Data.SqlClient.SqlParameter("@EID", enrollmentID),
                         new System.Data.SqlClient.SqlParameter("@LID", _lessonID)
                     });
+
                 RecalcProgress(enrollmentID);
             }
         }
