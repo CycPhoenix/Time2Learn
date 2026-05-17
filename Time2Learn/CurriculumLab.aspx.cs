@@ -71,10 +71,11 @@ namespace Time2Learn
                 {
                     new System.Data.SqlClient.SqlParameter("@LID", _lessonID)
                 });
+
             if (q.Rows.Count > 0)
                 litInstructions.Text = q.Rows[0]["QuestionPrompt"].ToString();
             else
-                litInstructions.Text = "Follow this lab instructions and complete the hands-on exercise.";
+                litInstructions.Text = "Follow the lab instructions and complete the hands-on exercise.";
 
             pnlIO.Visible = false;
             pnlSteps.Visible = false;
@@ -92,7 +93,7 @@ namespace Time2Learn
         {
             if (string.IsNullOrWhiteSpace(txtSubmission.Text))
             {
-                lblMsg.Text = "Please provide a submission beforee completing the lab.";
+                lblMsg.Text = "Please provide a submission before completing the lab.";
                 lblMsg.ForeColor = System.Drawing.Color.Red;
                 return;
             }
@@ -108,7 +109,7 @@ namespace Time2Learn
                 });
             if (Convert.ToInt32(exists) == 0)
             {
-                DBHelper.ExecuteNonQuery("INSERT INTO Lesson_Progress (EnrollmentID, LessonID, CompletedDate) VALUES (@EID, @LID, GETDATE())",
+                DBHelper.ExecuteNonQuery("INSERT INTO Lesson_Progress (EnrollmentID, LessonID, CompletedDate, IsCompleted) VALUES (@EID, @LID, GETDATE(), 1)",
                     new System.Data.SqlClient.SqlParameter[]
                     {
                         new System.Data.SqlClient.SqlParameter("@EID", enrollmentID),
