@@ -73,11 +73,11 @@
             <div class="lm-lesson-list">
                 <asp:Repeater ID="rptSidebarLessons" runat="server">
                     <ItemTemplate>
-                        <a href="<%# GetLessonUrl(Eval("LessonID")) %>" class="lm-lesson-item <%# Convert.ToBoolean(Eval("IsCompleted")) ? "completed" : "" %>">
+                        <a href="<%# GetLessonUrl(Eval("LessonID"), Eval("LessonType")) %>" class="lm-lesson-item <%# Convert.ToBoolean(Eval("IsCompleted")) ? "completed" : "" %>">
                             <div class="lm-lesson-check"><%# Convert.ToBoolean(Eval("IsCompleted")) ? "✓" : "" %></div>
                             <div class="lm-lesson-info">
                                 <div class="lm-lesson-title"><%# Eval("LessonTitle") %></div>
-                                <div class="lm-lesson-type">Video</div>
+                                <div class="lm-lesson-type"><%# Eval("LessonType") %></div>
                             </div>
                         </a>
                     </ItemTemplate>
@@ -112,8 +112,8 @@
                 <div class="lesson-grid">
                     <asp:Repeater ID="rptLessons" runat="server">
                         <ItemTemplate>
-                            <a href="<%# GetLessonUrl(Eval("LessonID")) %>" class="lesson-card <%# Convert.ToBoolean(Eval("IsCompleted")) ? "completed" : "" %>" style="text-decoration:none;color:inherit;">
-                                <div class="lesson-card__type-badge type-video">Video</div>
+                            <a href="<%# GetLessonUrl(Eval("LessonID"), Eval("LessonType")) %>" class="lesson-card <%# Convert.ToBoolean(Eval("IsCompleted")) ? "completed" : "" %>" style="text-decoration:none;color:inherit;">
+                                <div class="lesson-card__type-badge type-<%# Eval("LessonType").ToString().ToLower() %>"><%# Eval("LessonType") %></div>
                                 <div class="lesson-card__title"><%# Eval("LessonTitle") %></div>
                                 <div class="lesson-card__status <%# Convert.ToBoolean(Eval("IsCompleted")) ? "done" : "" %>">
                                     <%# Convert.ToBoolean(Eval("IsCompleted")) ? "✓ Completed" : "▶ Start" %>
