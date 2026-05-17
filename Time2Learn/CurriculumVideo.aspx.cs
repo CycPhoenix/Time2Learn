@@ -43,11 +43,12 @@ namespace Time2Learn
             int userID = AuthHelper.GetUserID();
             int enrollmentID = GetEnrollmentID(userID);
 
-            DataTable lesson = DBHelper.ExecuteQuery("SELECT l.LessonID, l.LessonTitle, l.LessonOrder, c.CourseID, c.CourseTitle FROM Lessons l INNER JOIN Courses c ON l.CourseID = c.CourseID WHERE l.LessonID = @LID",
+            DataTable lesson = DBHelper.ExecuteQuery(@"SELECT l.LessonID, l.LessonTitle, l.LessonOrder, c.CourseID, c.CourseTitle FROM Lessons l INNER JOIN Courses c ON l.CourseID = c.CourseID WHERE l.LessonID = @LID",
                 new System.Data.SqlClient.SqlParameter[]
                 {
                     new System.Data.SqlClient.SqlParameter("@LID", _lessonID)
                 });
+
             if (lesson.Rows.Count == 0)
             {
                 Response.Redirect("Courses.aspx");
@@ -56,7 +57,7 @@ namespace Time2Learn
 
             DataRow r = lesson.Rows[0];
             litTitle.Text = r["LessonTitle"].ToString();
-            litLessonTitle.Text = r["Lessontitle"].ToString();
+            litLessonTitle.Text = r["LessonTitle"].ToString();
             litCourse.Text = r["CourseTitle"].ToString();
             litCourseName.Text = r["CourseTitle"].ToString();
             litCourseID.Text = _courseID.ToString();
@@ -99,21 +100,21 @@ namespace Time2Learn
 
             int order = Convert.ToInt32(r["LessonOrder"]);
 
-            DataTable prev = DBHelper.ExecuteQuery("SELECT TOP 1 LessonID FROM Lessons WHERE CourseID = @CID AND LessonOrder < @Order ORDER BY LessonOrder DESC",
+            DataTable prev = DBHelper.ExecuteQuery(@"SELECT TOP 1 LessonID, LessonType FROM Lessons WHERE CourseID = @CID AND LessonOrder < @Order ORDER BY LessonOrder DESC",
                 new System.Data.SqlClient.SqlParameter[]
                 {
                     new System.Data.SqlClient.SqlParameter("@CID", _courseID),
                     new System.Data.SqlClient.SqlParameter("@Order", order)
                 });
-            lnkPrev.NavigateUrl = prev.Rows.Count > 0 ? "CurriculumVideo.aspx?lessonId=" + prev.Rows[0]["LessonID"] + "&courseId=" + _courseID : "LearningMaterial.aspx?id=" + _courseID;
+            lnkPrev.NavigateUrl = prev.Rows.Count > 0 ? GetLessonPage(prev.Rows[0]["LessonType"].ToString()) + "?lessonId=" + prev.Rows[0]["LessonID"] + "&courseId=" + _courseID : "LearningMaterial.aspx?id=" + _courseID;
 
-            DataTable next = DBHelper.ExecuteQuery("SELECT TOP 1 LessonID FROM Lessons WHERE CourseID = @CID AND LessonOrder > @Order ORDER BY LessonOrder ASC",
+            DataTable next = DBHelper.ExecuteQuery(@"SELECT TOP 1 LessonID, LessonType FROM Lessons WHERE CourseID = @CID AND LessonOrder > @Order ORDER BY LessonOrder ASC",
                 new System.Data.SqlClient.SqlParameter[]
                 {
                     new System.Data.SqlClient.SqlParameter("@CID", _courseID),
                     new System.Data.SqlClient.SqlParameter("@Order", order)
                 });
-            lnkNext.NavigateUrl = next.Rows.Count > 0 ? "CurriculumVideo.aspx?lessonId=" + next.Rows[0]["LessonID"] + "&courseId=" + _courseID : "LearningMaterial.aspx?id=" + _courseID;
+            lnkNext.NavigateUrl = next.Rows.Count > 0 ? GetLessonPage(next.Rows[0]["LessonType"].ToString()) + "?lessonId=" + next.Rows[0]["LessonID"] + "&courseId=" + _courseID : "LearningMaterial.aspx?id=" + _courseID;
         }
 
         protected void btnComplete_Click(object sender, EventArgs e)
@@ -130,7 +131,7 @@ namespace Time2Learn
 
             if (Convert.ToInt32(exists) == 0)
             {
-                DBHelper.ExecuteNonQuery("INSERT INTO Lesson_Progress (EnrollmentID, LessonID, CompleteDate) VALUES (@EID, @LID, GETDATE())",
+                DBHelper.ExecuteNonQuery("INSERT INTO Lesson_Progress (EnrollmentID, LessonID, CompletedDate, IsCompleted) VALUES (@EID, @LID, GETDATE(), 1)",
                     new System.Data.SqlClient.SqlParameter[]
                     {
                         new System.Data.SqlClient.SqlParameter("@EID", enrollmentID),
@@ -141,6 +142,21 @@ namespace Time2Learn
             }
 
             LoadData();
+        }
+
+        private string GetLessonPage(string lessonType)
+        {
+            switch (lessonType)
+            {
+                case "Quiz":
+                    return "CurriculumQuiz.aspx";
+                case "Coding":
+                    return "CurriculumCoding.aspx";
+                case "Lab":
+                    return "CurriculumLab.aspx";
+                default:
+                    return "CurriculumVideo.aspx";
+            }
         }
 
         private void RecalcProgress(int enrollmentID)
@@ -159,7 +175,7 @@ namespace Time2Learn
             int t = Convert.ToInt32(total);
             if (t == 0) return;
             int pct = (int)Math.Round((double)Convert.ToInt32(done) / t * 100);
-            DBHelper.ExecuteNonQuery("UPDATE Enrollmets SET OverallProgressPercentage = @Pct WHERE EnrollmentID = @EID",
+            DBHelper.ExecuteNonQuery("UPDATE Enrollments SET OverallProgressPercentage = @Pct WHERE EnrollmentID = @EID",
                 new System.Data.SqlClient.SqlParameter[]
                 {
                     new System.Data.SqlClient.SqlParameter("@Pct", pct),
