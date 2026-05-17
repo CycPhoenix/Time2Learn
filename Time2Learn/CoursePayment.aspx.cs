@@ -16,6 +16,7 @@ namespace Time2Learn
         protected void Page_Load(object sender, EventArgs e)
         {
             AuthHelper.RequireLogin();
+
             if (!int.TryParse(Request.QueryString["id"], out _courseID))
             {
                 Response.Redirect("Courses.aspx");
@@ -84,11 +85,12 @@ namespace Time2Learn
                 return;
             }
 
-            DBHelper.ExecuteNonQuery("INSERT INTO Enrollments (UserID, CourseID, EnrollDate, OverallProgressPercentage, Certificate) VALUES (@UID, @CID, GETDATE(), 0, ''",
+            DBHelper.ExecuteNonQuery("INSERT INTO Enrollments (UserID, CourseID, EnrollDate, OverallProgressPercentage, Certificate) VALUES (@UID, @CID, GETDATE(), 0, @Cert)",
                 new System.Data.SqlClient.SqlParameter[]
                 {
                     new System.Data.SqlClient.SqlParameter("@UID", userID),
-                    new System.Data.SqlClient.SqlParameter("@CID", _courseID)
+                    new System.Data.SqlClient.SqlParameter("@CID", _courseID),
+                    new System.Data.SqlClient.SqlParameter("@Cert", "")
                 });
 
             // Remove from cart if present
