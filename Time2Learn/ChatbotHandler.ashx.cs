@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -10,10 +10,7 @@ using System.Web.Script.Serialization;
 
 namespace Time2Learn
 {
-    /// <summary>
-    /// Summary description for ChatBotHandler
-    /// </summary>
-    public class ChatBotHandler : IHttpHandler
+    public class ChatbotHandler : IHttpHandler
     {
         public bool IsReusable => false;
 
@@ -25,48 +22,59 @@ namespace Time2Learn
             {
                 string body = new StreamReader(context.Request.InputStream).ReadToEnd();
                 var serializer = new JavaScriptSerializer();
-                var input = serializer.Deserialize<System.Collections.Generic.Dictionary<string, string>>(body);
+                var input = serializer.Deserialize<Dictionary<string, string>>(body);
                 string userMessage = input.ContainsKey("userMessage") ? input["userMessage"] : "";
 
-                string apiKey = ConfigurationManager.AppSettings["GeminiApiKey"];
-                string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
-
-                string prompt = "You are a helpful learning assistant for Time2Learn, an onlin learning platform for programming and computer science courses. Answer questions about courses, enrollment, progress tracking, quizzes, certificates, and general programming topics. Keep answers concise and friendly.\n\nUser: " + userMessage;
+                string apiKey = ConfigurationManager.AppSettings["GroqApiKey"];
 
                 string requestJson = serializer.Serialize(new
                 {
-                    contents = new[]
+                    model = "llama-3.1-8b-instant",
+                    messages = new[]
                     {
                         new
                         {
-                            parts = new[]
-                            {
-                                new { text = prompt }
-                            }
+                            role = "system",
+                            content = "You are a helpful learning assistant for Time2Learn, an online learning platform for programming and computer science courses. Answer questions about courses, enrollment, progress tracking, quizzes, certificates, and general programming topics. Keep answers concise and friendly."
+                        },
+                        new
+                        {
+                            role = "user",
+                            content = userMessage
                         }
                     }
                 });
 
                 using (var client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("Authorization", "Bearer " + apiKey);
+
                     var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
-                    var response = client.PostAsync(url, content).Result;
+                    var response = client.PostAsync("https://api.groq.com/openai/v1/chat/completions", content).Result;
                     string responseJson = response.Content.ReadAsStringAsync().Result;
 
                     var result = serializer.Deserialize<Dictionary<string, object>>(responseJson);
-                    var candidates = (System.Collections.ArrayList)result["candidates"];
-                    var candidate = (Dictionary<string, object>)candidates[0];
-                    var msgContent = (Dictionary<string, object>)candidate["content"];
-                    var parts = (System.Collections.ArrayList)msgContent["parts"];
-                    var part = (Dictionary<string, object>)parts[0];
-                    string reply = part["text"].ToString();
+
+                    if (!result.ContainsKey("choices"))
+                    {
+                        string errorDetail = result.ContainsKey("error")
+                            ? serializer.Serialize(result["error"])
+                            : responseJson;
+                        context.Response.Write("{\"reply\":\"DEBUG API: " + errorDetail.Replace("\"", "'") + "\"}");
+                        return;
+                    }
+
+                    var choices = (System.Collections.ArrayList)result["choices"];
+                    var choice = (Dictionary<string, object>)choices[0];
+                    var message = (Dictionary<string, object>)choice["message"];
+                    string reply = message["content"].ToString();
 
                     context.Response.Write(serializer.Serialize(new { reply = reply }));
                 }
             }
             catch (Exception ex)
             {
-                context.Response.Write("{\"reply\":\"Sorry, I'm having trouble connecting right now. Please try again later.\"}");
+                context.Response.Write("{\"reply\":\"DEBUG: " + ex.Message.Replace("\"", "'") + "\"}");
             }
         }
     }
