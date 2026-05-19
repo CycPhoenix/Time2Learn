@@ -11,8 +11,8 @@
         .auth-heading { font-size:clamp(1.5rem,2.5vw,1.9rem); font-weight:800; line-height:1.25; margin-bottom:28px; color:var(--text-dark); }
         .auth-switch { font-size:0.875rem; color:var(--text-light); margin-bottom:20px; }
         .auth-switch a { color:var(--primary); font-weight:600; }
-        .alert-error { background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; padding:12px 16px; border-radius:var(--radius-sm); font-size:0.9rem; font-weight:500; margin-bottom:20px; }
-        .success-msg { background:#dcfce7; border:1px solid #86efac; color:#166534; padding:12px 16px; border-radius:var(--radius-sm); font-size:0.9rem; font-weight:500; margin-bottom:20px; }
+        .alert-error { display:flex; align-items:center; gap:8px; background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; padding:10px 14px; border-radius:var(--radius-sm); font-size:0.875rem; font-weight:500; margin-bottom:16px; }
+        .success-msg { display:flex; align-items:center; gap:8px; background:#dcfce7; border:1px solid #86efac; color:#166534; padding:10px 14px; border-radius:var(--radius-sm); font-size:0.875rem; font-weight:500; margin-bottom:16px; }
         .demo-box { margin-top:24px; padding:16px; background:var(--bg-light); border-radius:var(--radius); border:1px solid var(--border); }
         .demo-box__title { font-weight:700; font-size:0.82rem; color:var(--text-dark); margin-bottom:10px; }
         .demo-table { width:100%; border-collapse:collapse; font-size:0.8rem; color:var(--text-mid); }
@@ -32,7 +32,7 @@
         /* Dark mode */
         [data-theme="dark"] .auth-split__brand { background:#1c1d1f; border-color:#333; }
         [data-theme="dark"] .auth-brand__art { background:#2a2a2e; box-shadow:none; }
-        [data-theme="dark"] .auth-brand__art img { filter:brightness(0) invert(1) }
+        [data-theme="dark"] .auth-brand__art img { filter:brightness(0) invert(1); }
         [data-theme="dark"] .auth-split__form { background:#18191a; }
         [data-theme="dark"] .auth-heading { color:#fff; }
         [data-theme="dark"] .demo-box { background:#2a2a2e; border-color:#333; }
@@ -62,9 +62,6 @@
 
                 <h1 class="auth-heading">Log in to continue your<br />learning journey !</h1>
 
-                <asp:Label ID="lblError" runat="server" CssClass="alert-error" Visible="false" />
-                <asp:Label ID="lblSuccess" runat="server" CssClass="success-msg" Visible="false" />
-
                 <div class="form-group">
                     <label for="txtEmail">Email Address :</label>
                     <asp:TextBox ID="txtEmail" runat="server" TextMode="Email" placeholder="you@example.com" CssClass="form-control" autocomplete="email" />
@@ -80,6 +77,9 @@
                     </div>
                     <asp:RequiredFieldValidator runat="server" ControlToValidate="txtPassword" CssClass="form-error" ErrorMessage="Password is required." Display="Dynamic" />
                 </div>
+
+                <asp:Label ID="lblError" runat="server" CssClass="alert-error" Visible="false" />
+                <asp:Label ID="lblSuccess" runat="server" CssClass="success-msg" Visible="false" />
 
                 <p class="auth-switch">Don't have an account? &nbsp;<a href="Register.aspx">Sign up</a></p>
 
@@ -125,6 +125,15 @@
 
 <asp:Content ID="ScriptsContent" ContentPlaceHolderID="ScriptsContent" runat="server">
     <script>
+// @ts-nocheck
+// Override garbled togglePassword from script.js
+function togglePassword(id, btn) { 
+    var input = document.getElementById(id);
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+    btn.textContent = '👁';
+}
+
 document.querySelectorAll('#demoTable tr').forEach(function (row) {
     row.addEventListener('click', function () {
         var cells = this.querySelectorAll('td');
