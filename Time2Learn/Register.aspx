@@ -11,13 +11,13 @@
         .auth-heading { font-size:clamp(1.5rem,2.5vw,1.9rem); font-weight:800; line-height:1.25; margin-bottom:28px; color:var(--text-dark); }
         .auth-switch { font-size:0.875rem; color:var(--text-light); margin-bottom:20px; }
         .auth-switch a { color:var(--primary); font-weight:600; }
-        .alert-error { background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; padding:12px 16px; border-radius:var(--radius-sm); font-size:0.9rem; font-weight:500; margin-bottom:20px; }
-        .success-msg { background:#dcfce7; border:1px solid #86efac; color:#166534; padding:12px 16px; border-radius:var(--radius-sm); font-size:0.9rem; font-weight:500; margin-bottom:20px; }
+        .alert-error { display:flex; align-items:center; gap:8px; background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; padding:10px 14px; border-radius:var(--radius-sm); font-size:0.875rem; font-weight:500; margin-bottom:16px; }
+        .success-msg { display:flex; align-items:center; gap:8px; background:#dcfce7; border:1px solid #86efac; color:#166534; padding:10px 14px; border-radius:var(--radius-sm); font-size:0.875rem; font-weight:500; margin-bottom:16px; }
 
         /* Dark mode */
         [data-theme="dark"] .auth-split__brand { background:#1c1d1f; border-color:#333; }
         [data-theme="dark"] .auth-brand__art { background:#2a2a2e; box-shadow:none; }
-        [data-theme="dark"] .auth-brand__art img { filter:brightness(0) invert(1) }
+        [data-theme="dark"] .auth-brand__art img { filter:brightness(0) invert(1); }
         [data-theme="dark"] .auth-split__form { background:#18191a; }
         [data-theme="dark"] .auth-heading { color:#fff; }
         [data-theme="dark"] .alert-error { background:#450a0a; border-color:#991b1b; color:#fca5a5; }
@@ -32,7 +32,7 @@
         <div class="auth-split__brand">
             <div class="auth-brand">
                 <div class="auth-brand__art">
-                    <img src="~/assets/logo.png" alt="Time2Learn" style="width:300px;height:300px;object-fit:contain;" />
+                    <asp:Image runat="server" ImageUrl="~/assets/logo.png" AlternateText="Time2Learn" style="width:300px;height:300px;object-fit:contain;" />
                 </div>
             </div>
         </div>
@@ -42,9 +42,6 @@
             <div class="auth-form-wrap">
 
                 <h1 class="auth-heading">Sign up to start your<br />learning journey !</h1>
-
-                <asp:Label ID="lblError" runat="server" CssClass="alert-error" Visible="false" />
-                <asp:Label ID="lblSuccess" runat="server" CssClass="success-msg" Visible="false" />
 
                 <div class="form-group">
                     <label for="txtFullName">Full Name :</label>
@@ -69,6 +66,9 @@
                     <asp:RegularExpressionValidator runat="server" ControlToValidate="txtPassword" CssClass="form-error" ValidationExpression=".{6,}" ErrorMessage="Password must be at least 6 characters." Display="Dynamic" />
                 </div>
 
+                <asp:Label ID="lblError" runat="server" CssClass="alert-error" Visible="false" />
+                <asp:Label ID="lblSuccess" runat="server" CssClass="success-msg" Visible="false" />
+
                 <p class="auth-switch">Already have an account? &nbsp;<a href="Login.aspx">Log in</a></p>
 
                 <asp:Button ID="btnRegister" runat="server" Text="Continue ›" CssClass="btn btn--primary btn--full btn--lg" OnClick="btnRegister_Click" />
@@ -79,4 +79,14 @@
 </asp:Content>
 
 <asp:Content ID="ScriptsContent" ContentPlaceHolderID="ScriptsContent" runat="server">
+    <script>
+// @ts-nocheck
+// Override garbled togglePassword from script.js
+function togglePassword(id, btn) {
+    var input = document.getElementById(id);
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+    btn.textContent = '👁';
+}
+    </script>
 </asp:Content>
