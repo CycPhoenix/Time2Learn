@@ -18,7 +18,7 @@
     };
 }();
 </script>
-    <link rel="stylesheet" href="~/Content/style.css" />
+    <link rel="stylesheet" href='<%= ResolveUrl("~/Content/style.css") %>' />
     <style>
         /* ── Animations ── */
         @keyframes fadeUp   { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
@@ -156,7 +156,7 @@
         </footer>
         <!-- ===== END FOOTER ===== -->
 
-        <script src="~/Scripts/script.js"></script>
+        <script src='<%= ResolveUrl("~/Scripts/script.js") %>'></script>
         <asp:ContentPlaceHolder ID="ScriptsContent" runat="server" />
         <script>
             // @ts-nocheck
