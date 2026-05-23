@@ -205,7 +205,27 @@
     document.getElementById('<%= btnSearch.ClientID %>').click();
 }
 
-// Pagination button highlight
+// Restore filter selections after postback
+        window.addEventListener('DOMContentLoaded', function () {
+            var catVal = document.getElementById('<%= hdnCatID.ClientID %>').value;
+            var levelVal = document.getElementById('<%= hdnLevel.ClientID %>').value;
+
+            if (catVal) {
+                var catRadio = document.querySelector('input[name="cat"][value="' + catVal + '"]');
+                if (catRadio) catRadio.checked = true;
+            } else {
+                document.getElementById('cat_all').checked = true;
+            }
+
+            if (levelVal) {
+                var levelRadio = document.querySelector('input[name="level"][value="' + levelVal + '"]');
+                if (levelRadio) levelRadio.checked = true;
+            } else {
+                document.getElementById('lvl_all').checked = true;
+            }
+        });
+
+        // Pagination button highlight
 document.querySelectorAll('.page-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
         document.querySelectorAll('.page-btn').forEach(function (b) { b.classList.remove('active'); });
