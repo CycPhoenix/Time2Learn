@@ -1,4 +1,4 @@
-﻿<%@ Title="Become an Instructor - Time2Learn" Page Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="InstructorRegistration.aspx.cs" Inherits="Time2Learn.InstructorRegistration" %>
+﻿<%@ Page Title="Become an Instructor - Time2Learn" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="InstructorRegistration.aspx.cs" Inherits="Time2Learn.InstructorRegistration" %>
 
 <asp:Content ID="HeadContent" ContentPlaceHolderID="HeadContent" runat="server">
     <style>
