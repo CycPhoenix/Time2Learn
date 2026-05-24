@@ -62,7 +62,7 @@
             <div class="community-header">
                 <h2>Latest Discussions</h2>
                 <asp:Panel ID="pnlNewBtn" runat="server">
-                    <button onclick="document.getElementById('newThreadForm').style.display=document.getElementById('newThreadForm').style.display=='none'?'block':'none'" class="btn btn--primary btn--sm">+ New Thread</button>
+                    <button type="button" onclick="document.getElementById('newThreadForm').style.display=document.getElementById('newThreadForm').style.display=='none'?'block':'none'" class="btn btn--primary btn--sm">+ New Thread</button>
                 </asp:Panel>
             </div>
 
