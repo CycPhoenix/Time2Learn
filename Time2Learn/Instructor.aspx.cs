@@ -56,10 +56,15 @@ namespace Time2Learn
                 {
                     new System.Data.SqlClient.SqlParameter("@UID", userID)
                 });
-            litAvgRating.Text = avgRating != null && avgRating != DBNull.Value ? Math.Round(Convert.ToDouble(avgRating), 1).ToString("0.0") : "-";
+            litAvgRating.Text = avgRating != null && avgRating != DBNull.Value ? Math.Round(Convert.ToDouble(avgRating), 1).ToString("0.0") : "—";
+
+            object reviewCount = DBHelper.ExecuteScalar(@"SELECT COUNT(*) FROM Review rv INNER JOIN Courses c ON rv.CourseID = c.CourseID WHERE c.CreatedBy = @UID", new System.Data.SqlClient.SqlParameter[] {
+                    new System.Data.SqlClient.SqlParameter("@UID", userID)
+                });
+            litReviewCount.Text = reviewCount?.ToString() ?? "0";
 
             // Overview courses (with student count and avg rating)
-            DataTable overviewCourses = DBHelper.ExecuteQuery(@"SELECT c.CourseID, c.CourseTitle, c.CourseStatus, c.Price, COUNT(DISTINCT e.UserID) AS StudentCount, ISNULL(AVG(CAST(rv.Rating AS FLOAT)), 0) AS AvgRating FROM Courses c LEFT JOIN Enrollments e ON c.CourseID = e.CourseID LEFT JOIN Review rv ON c.CourseID = rv.CourseID WHERE c.CreatedBy = @UID GROUP BY c.CourseID, c.CourseTitle, c.CourseStatus, c.Price ORDER BY c.CourseID DESC",
+            DataTable overviewCourses = DBHelper.ExecuteQuery(@"SELECT c.CourseID, c.CourseTitle, c.CourseStatus, c.Price, c.DifficultyLevel, cat.CategoryName, COUNT(DISTINCT e.UserID) AS StudentCount, ISNULL(AVG(CAST(rv.Rating AS FLOAT)), 0) AS AvgRating FROM Courses c INNER JOIN Categories cat ON c.CategoryID = cat.CategoryID LEFT JOIN Enrollments e ON c.CourseID = e.CourseID LEFT JOIN Review rv ON c.CourseID = rv.CourseID WHERE c.CreatedBy = @UID GROUP BY c.CourseID, c.CourseTitle, c.CourseStatus, c.Price, c.DifficultyLevel, cat.CategoryName ORDER BY c.CourseID DESC",
                 new System.Data.SqlClient.SqlParameter[]
                 {
                     new System.Data.SqlClient.SqlParameter("@UID", userID)
