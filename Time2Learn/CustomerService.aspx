@@ -36,6 +36,21 @@
         .badge--closed     { background:#f1f5f9; color:#475569; }
         .badge--in-progress { background:#e0e7ff; color:#3730a3; }
         .empty-state { padding:60px 24px; text-align:center; color:var(--text-light); }
+        /* ── Form / Profile ── */
+        .form-group { margin-bottom:16px; }
+        .form-group label { display:block; font-weight:600; font-size:0.85rem; margin-bottom:6px; color:var(--text-dark); }
+        .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 14px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:0.9rem; outline:none; transition:border-color 0.2s; font-family:inherit; background:white; box-sizing:border-box; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--primary); }
+        .form-group textarea { resize:vertical; min-height:80px; }
+        .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        /* ── Toggle switches ── */
+        .settings-row { display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid var(--border); }
+        .settings-row:last-child { border-bottom:none; }
+        .toggle-wrap { position:relative; width:44px; height:24px; cursor:pointer; flex-shrink:0; }
+        .toggle-track { position:absolute; inset:0; background:#ccc; border-radius:12px; transition:0.3s; }
+        .toggle-track.on { background:var(--primary); }
+        .toggle-thumb { position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:white; transition:0.3s; }
+        .toggle-track.on + .toggle-thumb { left:22px; }
         .status-select { padding:5px 10px; border:1px solid var(--border); border-radius:var(--radius); font-size:0.85rem; }
         .ticket-detail { background:white; border-radius:var(--radius-lg); border:1px solid var(--border); padding:24px; margin-bottom:24px; }
         .ticket-detail h4 { margin-bottom:8px; }
@@ -401,7 +416,10 @@
 
             <!-- My Profile -->
             <div class="inst-section" id="section-profile">
-                <div class="dash-page-header"><h1>My Profile</h1><p>Update your personal information.</p></div>
+                <div class="dash-page-header">
+                    <h1>My Profile</h1>
+                    <p style="color:var(--text-light);font-size:0.9rem;">Update your personal information.</p>
+                </div>
                 <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:32px;max-width:560px;">
                     <div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;">
                         <div class="sidebar__avatar" style="width:72px;height:72px;font-size:1.4rem;flex-shrink:0;"><asp:Literal ID="litProfileAvatar" runat="server" /></div>
@@ -410,24 +428,24 @@
                             <div style="font-size:0.85rem;color:var(--text-light);"><asp:Literal ID="litProfileEmailDisp" runat="server" /></div>
                         </div>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-                        <div>
-                            <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">First Name</label>
-                            <asp:TextBox ID="txtProfileFirstName" runat="server" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <asp:TextBox ID="txtProfileFirstName" runat="server" />
                         </div>
-                        <div>
-                            <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Last Name</label>
-                            <asp:TextBox ID="txtProfileLastName" runat="server" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <asp:TextBox ID="txtProfileLastName" runat="server" />
                         </div>
                     </div>
-                    <div style="margin-bottom:16px;">
-                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Avatar Initials</label>
-                        <asp:TextBox ID="txtProfileAvatar" runat="server" MaxLength="3" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" placeholder="e.g. CS" />
-                        <div style="font-size:0.78rem;color:var(--text-light);margin-top:4px;">2–3 characters or emoji shown in your avatar circle.</div>
+                    <div class="form-group">
+                        <label>Avatar Initials</label>
+                        <asp:TextBox ID="txtProfileAvatar" runat="server" MaxLength="3" placeholder="e.g. CS" />
+                        <div style="font-size:0.78rem;color:var(--text-light);margin-top:4px;">2–3 characters shown in your avatar circle.</div>
                     </div>
-                    <div style="margin-bottom:24px;">
-                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Email</label>
-                        <div style="padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg-light);font-size:0.9rem;color:var(--text-light);"><asp:Literal ID="litProfileEmailRO" runat="server" /></div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <div style="padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--bg-light);font-size:0.9rem;color:var(--text-light);"><asp:Literal ID="litProfileEmailRO" runat="server" /></div>
                         <div style="font-size:0.78rem;color:var(--text-light);margin-top:4px;">Email cannot be changed.</div>
                     </div>
                     <asp:Button ID="btnSaveProfile" runat="server" Text="Save Changes" CssClass="btn btn--primary btn--sm" OnClick="btnSaveProfile_Click" CausesValidation="false" />
@@ -437,23 +455,46 @@
 
             <!-- Settings -->
             <div class="inst-section" id="section-settings">
-                <div class="dash-page-header"><h1>Settings</h1><p>Manage your account security.</p></div>
-                <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:32px;max-width:480px;">
+                <div class="dash-page-header">
+                    <h1>Settings</h1>
+                    <p style="color:var(--text-light);font-size:0.9rem;">Manage your account security and preferences.</p>
+                </div>
+                <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:32px;max-width:480px;margin-bottom:20px;">
                     <h3 style="margin:0 0 20px;font-size:1rem;">Change Password</h3>
-                    <div style="margin-bottom:14px;">
-                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Current Password</label>
-                        <asp:TextBox ID="txtCurrentPwd" runat="server" TextMode="Password" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <asp:TextBox ID="txtCurrentPwd" runat="server" TextMode="Password" />
                     </div>
-                    <div style="margin-bottom:14px;">
-                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">New Password</label>
-                        <asp:TextBox ID="txtNewPwd" runat="server" TextMode="Password" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <asp:TextBox ID="txtNewPwd" runat="server" TextMode="Password" />
                     </div>
-                    <div style="margin-bottom:20px;">
-                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Confirm New Password</label>
-                        <asp:TextBox ID="txtConfirmPwd" runat="server" TextMode="Password" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <asp:TextBox ID="txtConfirmPwd" runat="server" TextMode="Password" />
                     </div>
                     <asp:Button ID="btnChangePassword" runat="server" Text="Update Password" CssClass="btn btn--primary btn--sm" OnClick="btnChangePassword_Click" CausesValidation="false" />
                     <asp:Label ID="lblPwdMsg" runat="server" style="display:block;margin-top:10px;font-size:0.85rem;" />
+                </div>
+                <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:24px 32px;max-width:480px;">
+                    <h3 style="margin:0 0 4px;font-size:1rem;">Preferences</h3>
+                    <div class="settings-row">
+                        <div>
+                            <strong>Email Notifications</strong>
+                            <p style="font-size:0.85rem;margin:0;color:var(--text-light);">Receive updates and alerts via email</p>
+                        </div>
+                        <div class="toggle-wrap" onclick="dashToggle(this)">
+                            <div class="toggle-track on"></div>
+                            <div class="toggle-thumb"></div>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <strong>Two-Factor Authentication</strong>
+                            <p style="font-size:0.85rem;margin:0;color:var(--text-light);">Add extra security to your account</p>
+                        </div>
+                        <button class="btn btn--outline btn--sm" onclick="return false;">Enable</button>
+                    </div>
                 </div>
             </div>
 
@@ -497,5 +538,10 @@ function switchChatbotTab(id, btn) {
         switchChatbotTab(tab, tabBtn);
     }
 })();
+
+function dashToggle(wrap) {
+    var track = wrap.querySelector('.toggle-track');
+    if (track) track.classList.toggle('on');
+}
     </script>
 </asp:Content>
