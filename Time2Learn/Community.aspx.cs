@@ -46,33 +46,50 @@ namespace Time2Learn
 
         protected void btnPostThread_Click(object sender, EventArgs e)
         {
-            int userID = AuthHelper.GetUserID();
-            int catID = int.Parse(ddlCat.SelectedValue);
-
-            object newThreadID = DBHelper.ExecuteScalar(@"INSERT INTO Discussion_Threads (UserID, CategoryID, Title, CreatedAt, Status) VALUES (@UID, @CID, @Title, GETDATE(), 'Open'); SELECT SCOPE_IDENTITY();",
-                new System.Data.SqlClient.SqlParameter[]
-                {
-                    new System.Data.SqlClient.SqlParameter("@UID", userID),
-                    new System.Data.SqlClient.SqlParameter("@CID", catID),
-                    new System.Data.SqlClient.SqlParameter("@Title", txtThreadTitle.Text.Trim())
-                });
-
-            if (newThreadID != null)
+            try
             {
-                DBHelper.ExecuteNonQuery(@"INSERT INTO Discussion_Posts (ThreadID, UserID, Content, CreatedAt, IsEdited, PostStatus) VALUES (@TID, @UID, @Content, GETDATE(), 0, 'Approved')",
+                int userID = AuthHelper.GetUserID();
+
+                if (!int.TryParse(ddlCat.SelectedValue, out int catID) || catID == 0)
+                {
+                    lblMsg.Text = "Please select a category.";
+                    lblMsg.ForeColor = System.Drawing.Color.Red;
+                    return;
+                }
+
+                string title = txtThreadTitle.Text.Trim();
+                string body = txtThreadBody.Text.Trim();
+
+                object newThreadID = DBHelper.ExecuteScalar(@"INSERT INTO Discussion_Threads (UserID, CategoryID, Title, CreatedAt, Status) VALUES (@UID, @CID, @Title, GETDATE(), 'Open'); SELECT SCOPE_IDENTITY();",
                     new System.Data.SqlClient.SqlParameter[]
                     {
+                    new System.Data.SqlClient.SqlParameter("@UID", userID),
+                    new System.Data.SqlClient.SqlParameter("@CID", catID),
+                    new System.Data.SqlClient.SqlParameter("@Title", title)
+                    });
+
+                if (newThreadID != null && newThreadID != DBNull.Value)
+                {
+                    DBHelper.ExecuteNonQuery(@"INSERT INTO Discussion_Posts (ThreadID, UserID, Content, CreatedAt, IsEdited, PostStatus) VALUES (@TID, @UID, @Content, GETDATE(), 0, 'Approved')",
+                        new System.Data.SqlClient.SqlParameter[]
+                        {
                         new System.Data.SqlClient.SqlParameter("@TID", Convert.ToInt32(newThreadID)),
                         new System.Data.SqlClient.SqlParameter("@UID", userID),
-                        new System.Data.SqlClient.SqlParameter("@Content", txtThreadBody.Text.Trim())
-                    });
-            }
+                        new System.Data.SqlClient.SqlParameter("@Content", body)
+                        });
+                }
 
-            txtThreadTitle.Text = "";
-            txtThreadBody.Text = "";
-            lblMsg.Text = "Thread posted";
-            lblMsg.ForeColor = System.Drawing.Color.Green;
-            LoadData();
+                txtThreadTitle.Text = "";
+                txtThreadBody.Text = "";
+                lblMsg.Text = "Thread posted!";
+                lblMsg.ForeColor = System.Drawing.Color.Green;
+                LoadData();
+            }
+            catch (Exception ex)
+            {
+                lblMsg.Text = "Error: " + ex.Message;
+                lblMsg.ForeColor = System.Drawing.Color.Red;
+            }
         }
     }
 }
