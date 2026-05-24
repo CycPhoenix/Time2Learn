@@ -280,17 +280,28 @@ namespace Time2Learn
 
                     if (Convert.ToInt32(existing) > 0)
                     {
-                        DBHelper.ExecuteNonQuery(
-                            "UPDATE Lesson_Resources SET ResourceURL = @URL WHERE LessonID = @LID AND ResourceType = 'Video'",
-                            new SqlParameter[] {
+                        if (!string.IsNullOrEmpty(videoURL))
+                        {
+                            DBHelper.ExecuteNonQuery(
+                                "UPDATE Lesson_Resources SET ResourceURL = @URL WHERE LessonID = @LID AND ResourceType = 'Video'",
+                                new SqlParameter[] {
                                 new SqlParameter("@URL", videoURL),
                                 new SqlParameter("@LID", editID)
-                            });
+                                });
+                        }
+                        else
+                        {
+                            DBHelper.ExecuteNonQuery(
+                                "DELETE FROM Lesson_Resources WHERE LessonID = @LID AND ResourceType = 'Video'", new SqlParameter[]
+                                {
+                                    new SqlParameter("@LID", editID)
+                                });
+                        }
                     }
                     else if (!string.IsNullOrEmpty(videoURL))
                     {
                         DBHelper.ExecuteNonQuery(
-                            "INSERT INTO Lesson_Resources (LessonID, ResourceURL, ResourceType) VALUES (@LID, @URL, 'Video')",
+                            "INSERT INTO Lesson_Resources (LessonID, ResourceURL, ResourceType, Status) VALUES (@LID, @URL, 'Video', 'Published')",
                             new SqlParameter[] {
                                 new SqlParameter("@LID", editID),
                                 new SqlParameter("@URL", videoURL)
