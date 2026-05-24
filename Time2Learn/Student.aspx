@@ -76,19 +76,27 @@
             </div>
             <nav class="sidebar__nav">
                 <div class="sidebar__section-label">Student</div>
-                <div class="sidebar__nav-item active" onclick="showDashSection('overview', this)">
+                <div class="sidebar__nav-item active" id="nav-overview" onclick="showDashSection('overview', this)">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
                     Overview
                 </div>
-                <div class="sidebar__nav-item" onclick="showDashSection('my-courses', this)">
+                <div class="sidebar__nav-item" id="nav-my-courses" onclick="showDashSection('my-courses', this)">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>
                     My Courses
                 </div>
-                <div class="sidebar__nav-item" onclick="showDashSection('support-history', this)">
+                <div class="sidebar__nav-item" id="nav-support-history" onclick="showDashSection('support-history', this)">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
                     Support History
                 </div>
                 <div class="sidebar__section-label">Account</div>
+                <div class="sidebar__nav-item" id="nav-profile" onclick="showDashSection('profile', this)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    My Profile
+                </div>
+                <div class="sidebar__nav-item" id="nav-settings" onclick="showDashSection('settings', this)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    Settings
+                </div>
                 <a href="Logout.aspx" class="sidebar__nav-item" style="color:#ef4444;">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
                     Log Out
@@ -97,6 +105,7 @@
         </aside>
 
         <!-- Main Content -->
+        <asp:HiddenField ID="hdnActiveSection" runat="server" Value="overview" />
         <main class="dashboard-content">
 
             <!-- Overview -->
@@ -209,6 +218,64 @@
                 </div>
             </div>
 
+            <!-- My Profile -->
+            <div class="inst-section" id="section-profile">
+                <div class="dash-page-header"><h1>My Profile</h1><p>Update your personal information.</p></div>
+                <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:32px;max-width:560px;">
+                    <div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;">
+                        <div class="sidebar__avatar" style="width:72px;height:72px;font-size:1.4rem;flex-shrink:0;"><asp:Literal ID="litProfileAvatar" runat="server" /></div>
+                        <div>
+                            <div style="font-weight:700;font-size:1.1rem;"><asp:Literal ID="litProfileName" runat="server" /></div>
+                            <div style="font-size:0.85rem;color:var(--text-light);"><asp:Literal ID="litProfileEmailDisp" runat="server" /></div>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                        <div>
+                            <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">First Name</label>
+                            <asp:TextBox ID="txtProfileFirstName" runat="server" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Last Name</label>
+                            <asp:TextBox ID="txtProfileLastName" runat="server" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                        </div>
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Avatar Initials</label>
+                        <asp:TextBox ID="txtProfileAvatar" runat="server" MaxLength="3" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" placeholder="e.g. JS" />
+                        <div style="font-size:0.78rem;color:var(--text-light);margin-top:4px;">2–3 characters or emoji shown in your avatar circle.</div>
+                    </div>
+                    <div style="margin-bottom:24px;">
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Email</label>
+                        <div style="padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg-light);font-size:0.9rem;color:var(--text-light);"><asp:Literal ID="litProfileEmailRO" runat="server" /></div>
+                        <div style="font-size:0.78rem;color:var(--text-light);margin-top:4px;">Email cannot be changed.</div>
+                    </div>
+                    <asp:Button ID="btnSaveProfile" runat="server" Text="Save Changes" CssClass="btn btn--primary btn--sm" OnClick="btnSaveProfile_Click" CausesValidation="false" />
+                    <asp:Label ID="lblProfileMsg" runat="server" style="margin-left:12px;font-size:0.85rem;" />
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="inst-section" id="section-settings">
+                <div class="dash-page-header"><h1>Settings</h1><p>Manage your account security.</p></div>
+                <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:32px;max-width:480px;">
+                    <h3 style="margin:0 0 20px;font-size:1rem;">Change Password</h3>
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Current Password</label>
+                        <asp:TextBox ID="txtCurrentPwd" runat="server" TextMode="Password" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">New Password</label>
+                        <asp:TextBox ID="txtNewPwd" runat="server" TextMode="Password" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Confirm New Password</label>
+                        <asp:TextBox ID="txtConfirmPwd" runat="server" TextMode="Password" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                    </div>
+                    <asp:Button ID="btnChangePassword" runat="server" Text="Update Password" CssClass="btn btn--primary btn--sm" OnClick="btnChangePassword_Click" CausesValidation="false" />
+                    <asp:Label ID="lblPwdMsg" runat="server" style="display:block;margin-top:10px;font-size:0.85rem;" />
+                </div>
+            </div>
+
         </main>
     </div>
 </asp:Content>
@@ -222,6 +289,16 @@ function showDashSection(name, el) {
     if (sec) sec.classList.add('active');
     document.querySelectorAll('.sidebar__nav-item').forEach(function (i) { i.classList.remove('active'); });
     if (el) el.classList.add('active');
+    var hdn = document.getElementById('<%= hdnActiveSection.ClientID %>');
+    if (hdn) hdn.value = name;
 }
-</script>
+
+(function () {
+    var hdn = document.getElementById('<%= hdnActiveSection.ClientID %>');
+    if (!hdn) return;
+    var active = hdn.value || 'overview';
+    var navEl = document.getElementById('nav-' + active);
+    showDashSection(active, navEl);
+})();
+    </script>
 </asp:Content>
