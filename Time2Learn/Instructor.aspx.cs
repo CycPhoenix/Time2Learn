@@ -101,6 +101,7 @@ namespace Time2Learn
             rptReviews.DataSource = reviews;
             rptReviews.DataBind();
 
+            LoadCategories();
             LoadInstructorCourses();
             LoadSupportHistory();
             LoadProfile();
@@ -581,11 +582,8 @@ namespace Time2Learn
             ddlCourseCategory.Items.Add(new System.Web.UI.WebControls.ListItem("— Select —", ""));
             foreach (DataRow r in cats.Rows)
                 ddlCourseCategory.Items.Add(new System.Web.UI.WebControls.ListItem(r["CategoryName"].ToString(), r["CategoryID"].ToString()));
-            if (!string.IsNullOrEmpty(selected))
-            {
-                var item = ddlCourseCategory.Items.FindByValue(selected);
-                if (item != null) item.Selected = true;
-            }
+            if (!string.IsNullOrEmpty(selected) && ddlCourseCategory.Items.FindByValue(selected) != null)
+                ddlCourseCategory.SelectedValue = selected;
         }
 
         private void OpenCourseModal(int courseID = 0)
@@ -607,14 +605,17 @@ namespace Time2Learn
                     txtCoursePrice.Text = r["Price"].ToString();
                     txtCourseDesc.Text = r["CourseDescription"].ToString();
 
-                    var catItem = ddlCourseCategory.Items.FindByValue(r["CategoryID"].ToString());
-                    if (catItem != null) catItem.Selected = true;
+                    string catVal = r["CategoryID"].ToString();
+                    if (ddlCourseCategory.Items.FindByValue(catVal) != null)
+                        ddlCourseCategory.SelectedValue = catVal;
 
-                    var lvlItem = ddlCourseLevel.Items.FindByValue(r["DifficultyLevel"].ToString());
-                    if (lvlItem != null) lvlItem.Selected = true;
+                    string lvlVal = r["DifficultyLevel"].ToString();
+                    if (ddlCourseLevel.Items.FindByValue(lvlVal) != null)
+                        ddlCourseLevel.SelectedValue = lvlVal;
 
-                    var stItem = ddlCourseStatus.Items.FindByValue(r["CourseStatus"].ToString());
-                    if (stItem != null) stItem.Selected = true;
+                    string stVal = r["CourseStatus"].ToString();
+                    if (ddlCourseStatus.Items.FindByValue(stVal) != null)
+                        ddlCourseStatus.SelectedValue = stVal;
                 }
             }
             else
