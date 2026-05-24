@@ -40,6 +40,15 @@
         .ticket-detail { background:white; border-radius:var(--radius-lg); border:1px solid var(--border); padding:24px; margin-bottom:24px; }
         .ticket-detail h4 { margin-bottom:8px; }
         .ticket-detail p { color:var(--text-light); font-size:0.9rem; margin:0; }
+        .tab-btn { background:none; border:none; padding:10px 20px; font-size:0.9rem; cursor:pointer; color:var(--text-light); border-bottom:2px solid transparent; margin-bottom:-2px; }
+        .tab-btn.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:600; }
+        .tab-panel { display:none; }
+        .tab-panel.active { display:block; }
+        .form-field-label { font-size:0.85rem; font-weight:600; display:block; margin-bottom:4px; }
+        .form-text-input { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem; box-sizing:border-box; }
+        [data-theme="dark"] .tab-btn { color:#888; }
+        [data-theme="dark"] .tab-btn.active { color:var(--primary); }
+        [data-theme="dark"] .form-text-input { background:#1c1d1f; border-color:#444; color:#fff; }
 
         /* Dark mode */
         [data-theme="dark"] .dashboard-layout { background:#18191a; }
@@ -70,17 +79,25 @@
             </div>
             <nav class="sidebar__nav">
                 <div class="sidebar__section-label">Customer Service</div>
-                <div class="sidebar__nav-item active" onclick="showCSSection('overview', this)">
+                <div class="sidebar__nav-item active" id="nav-overview" onclick="showCSSection('overview', this)">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
                     Overview
                 </div>
-                <div class="sidebar__nav-item" onclick="showCSSection('tickets', this)">
+                <div class="sidebar__nav-item" id="nav-tickets" onclick="showCSSection('tickets', this)">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
                     All Tickets
                 </div>
-                <div class="sidebar__nav-item" onclick="showCSSection('open', this)">
+                <div class="sidebar__nav-item" id="nav-open" onclick="showCSSection('open', this)">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                     Open Tickets
+                </div>
+                <div class="sidebar__nav-item" id="nav-faq" onclick="showCSSection('faq', this)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+                    FAQ Management
+                </div>
+                <div class="sidebar__nav-item" id="nav-chatbot" onclick="showCSSection('chatbot', this)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/></svg>
+                    Chatbot Management
                 </div>
                 <div class="sidebar__section-label">Account</div>
                 <a href="Logout.aspx" class="sidebar__nav-item" style="color:#ef4444;">
@@ -91,6 +108,10 @@
         </aside>
 
         <!-- Main Content -->
+        <asp:HiddenField ID="hdnActiveSection" runat="server" Value="overview" />
+        <asp:HiddenField ID="hdnEditFaqID" runat="server" Value="0" />
+        <asp:HiddenField ID="hdnEditKBID" runat="server" Value="0" />
+        <asp:HiddenField ID="hdnChatbotTab" runat="server" Value="logs" />
         <main class="dashboard-content">
 
             <!-- Overview -->
@@ -149,7 +170,7 @@
                     <table class="data-table">
                         <thead><tr><th>#</th><th>Subject</th><th>User</th><th>Status</th><th>Date</th><th>Update Status</th></tr></thead>
                         <tbody>
-                            <asp:Repeater ID="rptAllTickets" runat="server">
+                            <asp:Repeater ID="rptAllTickets" runat="server" OnItemDataBound="rptAllTickets_ItemDataBound">
                                 <ItemTemplate>
                                     <tr>
                                         <td><%# Eval("TicketID") %></td>
@@ -206,6 +227,170 @@
                 </div>
             </div>
 
+            <!-- FAQ Management -->
+            <div class="inst-section" id="section-faq">
+                <div class="dash-page-header"><h1>FAQ Management</h1><p>Create, edit and publish frequently asked questions.</p></div>
+
+                <asp:Panel ID="pnlFaqForm" runat="server" Visible="false" CssClass="admin-table-wrap" style="padding:20px;margin-bottom:20px;">
+                    <h3 style="margin-bottom:16px;"><asp:Literal ID="litFaqFormTitle" runat="server">Add FAQ</asp:Literal></h3>
+                    <div style="margin-bottom:12px;">
+                        <label class="form-field-label">Question *</label>
+                        <asp:TextBox ID="txtFaqQuestion" runat="server" CssClass="form-text-input" />
+                    </div>
+                    <div style="margin-bottom:12px;display:flex;gap:16px;">
+                        <div style="flex:1;">
+                            <label class="form-field-label">Category *</label>
+                            <asp:DropDownList ID="ddlFaqCategory" runat="server" CssClass="status-select" style="width:100%;">
+                                <asp:ListItem Text="Account" Value="Account" />
+                                <asp:ListItem Text="Billing" Value="Billing" />
+                                <asp:ListItem Text="Courses" Value="Courses" />
+                                <asp:ListItem Text="Instructor" Value="Instructor" />
+                                <asp:ListItem Text="Certificates" Value="Certificates" />
+                                <asp:ListItem Text="Technical" Value="Technical" />
+                                <asp:ListItem Text="General" Value="General" />
+                            </asp:DropDownList>
+                        </div>
+                        <div>
+                            <label class="form-field-label">Status</label>
+                            <asp:DropDownList ID="ddlFaqPublished" runat="server" CssClass="status-select">
+                                <asp:ListItem Text="Published" Value="1" />
+                                <asp:ListItem Text="Draft" Value="0" />
+                            </asp:DropDownList>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label class="form-field-label">Answer *</label>
+                        <asp:TextBox ID="txtFaqAnswer" runat="server" TextMode="MultiLine" Rows="4" CssClass="form-text-input" style="resize:vertical;" />
+                    </div>
+                    <asp:Button ID="btnSaveFaq" runat="server" Text="Save FAQ" CssClass="btn btn--primary btn--sm" OnClick="btnSaveFaq_Click" style="margin-right:8px;" />
+                    <asp:Button ID="btnCancelFaq" runat="server" Text="Cancel" CssClass="btn btn--outline btn--sm" OnClick="btnCancelFaq_Click" CausesValidation="false" />
+                </asp:Panel>
+
+                <div class="admin-table-wrap">
+                    <div class="admin-table-header">
+                        <h3>All FAQs (<asp:Literal ID="litFaqCount" runat="server">0</asp:Literal>)</h3>
+                        <asp:Button ID="btnShowAddFaq" runat="server" Text="+ Add FAQ" CssClass="btn btn--primary btn--sm" OnClick="btnShowAddFaq_Click" />
+                    </div>
+                    <table class="data-table">
+                        <thead><tr><th>#</th><th>Question</th><th>Category</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            <asp:Repeater ID="rptFAQs" runat="server">
+                                <ItemTemplate>
+                                    <tr>
+                                        <td><%# Eval("FaqID") %></td>
+                                        <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%# Eval("Question") %></td>
+                                        <td><%# Eval("Category") %></td>
+                                        <td><span class="badge badge--<%# Convert.ToBoolean(Eval("IsPublished")) ? "resolved" : "closed" %>"><%# Convert.ToBoolean(Eval("IsPublished")) ? "Published" : "Draft" %></span></td>
+                                        <td><%# Eval("CreatedDate", "{0:dd MMM yyyy}") %></td>
+                                        <td style="display:flex;gap:6px;">
+                                            <asp:LinkButton runat="server" CommandName="EditFaq" CommandArgument='<%# Eval("FaqID") %>' CssClass="btn btn--sm btn--outline" OnCommand="FaqAction_Command">Edit</asp:LinkButton>
+                                            <asp:LinkButton runat="server" CommandName="DeleteFaq" CommandArgument='<%# Eval("FaqID") %>' CssClass="btn btn--sm" style="background:#ef4444;color:white;border:2px solid #ef4444;" OnClientClick="return confirm('Delete this FAQ?');" OnCommand="FaqAction_Command">Delete</asp:LinkButton>
+                                        </td>
+                                    </tr>
+                                </ItemTemplate>
+                            </asp:Repeater>
+                        </tbody>
+                    </table>
+                    <asp:Panel ID="pnlNoFaqs" runat="server" Visible="false">
+                        <div class="empty-state">No FAQs found.</div>
+                    </asp:Panel>
+                </div>
+            </div>
+
+            <!-- Chatbot Management -->
+            <div class="inst-section" id="section-chatbot">
+                <div class="dash-page-header"><h1>Chatbot Management</h1><p>Review chat logs and manage the knowledge base.</p></div>
+
+                <div class="tabs" style="margin-bottom:20px;">
+                    <button type="button" class="tab-btn active" data-chatbot-tab="logs" onclick="switchChatbotTab('logs',this)">Chat Logs</button>
+                    <button type="button" class="tab-btn" data-chatbot-tab="kb" onclick="switchChatbotTab('kb',this)">Knowledge Base</button>
+                </div>
+
+                <!-- Chat Logs -->
+                <div class="tab-panel active" id="chatbot-tab-logs">
+                    <div class="admin-table-wrap">
+                        <div class="admin-table-header"><h3>Chat Logs</h3></div>
+                        <table class="data-table">
+                            <thead><tr><th>Log ID</th><th>User</th><th>Query</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+                            <tbody>
+                                <asp:Repeater ID="rptChatLogs" runat="server">
+                                    <ItemTemplate>
+                                        <tr>
+                                            <td><%# Eval("LogID") %></td>
+                                            <td><%# Eval("UserName") %></td>
+                                            <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%# Eval("UserQuery") %></td>
+                                            <td><span class="badge badge--<%# Convert.ToBoolean(Eval("IsEscalated")) ? "open" : "closed" %>"><%# Convert.ToBoolean(Eval("IsEscalated")) ? "Flagged" : "Normal" %></span></td>
+                                            <td><%# Eval("Timestamp", "{0:dd MMM yyyy}") %></td>
+                                            <td>
+                                                <asp:LinkButton runat="server" CommandName="ToggleEscalated" CommandArgument='<%# Eval("LogID") + "," + Eval("IsEscalated") %>' CssClass="btn btn--sm btn--outline" OnCommand="ChatLogAction_Command"><%# Convert.ToBoolean(Eval("IsEscalated")) ? "Remove Flag" : "Flag" %></asp:LinkButton>
+                                            </td>
+                                        </tr>
+                                    </ItemTemplate>
+                                </asp:Repeater>
+                            </tbody>
+                        </table>
+                        <asp:Panel ID="pnlNoChatLogs" runat="server" Visible="false">
+                            <div class="empty-state">No chat logs found.</div>
+                        </asp:Panel>
+                    </div>
+                </div>
+
+                <!-- Knowledge Base -->
+                <div class="tab-panel" id="chatbot-tab-kb">
+                    <asp:Panel ID="pnlKBForm" runat="server" Visible="false" CssClass="admin-table-wrap" style="padding:20px;margin-bottom:20px;">
+                        <h3 style="margin-bottom:16px;"><asp:Literal ID="litKBFormTitle" runat="server">Add KB Entry</asp:Literal></h3>
+                        <div style="margin-bottom:12px;">
+                            <label class="form-field-label">Topic *</label>
+                            <asp:TextBox ID="txtKBTopic" runat="server" CssClass="form-text-input" placeholder="e.g. Password Reset" />
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <label class="form-field-label">Response Summary *</label>
+                            <asp:TextBox ID="txtKBResponse" runat="server" TextMode="MultiLine" Rows="4" CssClass="form-text-input" style="resize:vertical;" />
+                        </div>
+                        <div style="margin-bottom:16px;">
+                            <label class="form-field-label">Status</label>
+                            <asp:DropDownList ID="ddlKBStatus" runat="server" CssClass="status-select">
+                                <asp:ListItem Text="Active" Value="Active" />
+                                <asp:ListItem Text="Draft" Value="Draft" />
+                            </asp:DropDownList>
+                        </div>
+                        <asp:Button ID="btnSaveKB" runat="server" Text="Save Entry" CssClass="btn btn--primary btn--sm" OnClick="btnSaveKB_Click" style="margin-right:8px;" />
+                        <asp:Button ID="btnCancelKB" runat="server" Text="Cancel" CssClass="btn btn--outline btn--sm" OnClick="btnCancelKB_Click" CausesValidation="false" />
+                    </asp:Panel>
+
+                    <div class="admin-table-wrap">
+                        <div class="admin-table-header">
+                            <h3>Knowledge Base (<asp:Literal ID="litKBCount" runat="server">0</asp:Literal>)</h3>
+                            <asp:Button ID="btnShowAddKB" runat="server" Text="+ Add Entry" CssClass="btn btn--primary btn--sm" OnClick="btnShowAddKB_Click" />
+                        </div>
+                        <table class="data-table">
+                            <thead><tr><th>#</th><th>Topic</th><th>Response</th><th>Status</th><th>Created</th><th>Updated</th><th>Actions</th></tr></thead>
+                            <tbody>
+                                <asp:Repeater ID="rptKB" runat="server">
+                                    <ItemTemplate>
+                                        <tr>
+                                            <td><%# Eval("KnowledgeBaseID") %></td>
+                                            <td><%# Eval("Topic") %></td>
+                                            <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%# Eval("ResponseSummary") %></td>
+                                            <td><span class="badge badge--<%# Eval("Status").ToString() == "Active" ? "resolved" : "closed" %>"><%# Eval("Status") %></span></td>
+                                            <td><%# Eval("CreatedAt", "{0:dd MMM yyyy}") %></td>
+                                            <td><%# Eval("UpdatedAt") != DBNull.Value ? string.Format("{0:dd MMM yyyy}", Eval("UpdatedAt")) : "-" %></td>
+                                            <td style="display:flex;gap:6px;">
+                                                <asp:LinkButton runat="server" CommandName="EditKB" CommandArgument='<%# Eval("KnowledgeBaseID") %>' CssClass="btn btn--sm btn--outline" OnCommand="KBAction_Command">Edit</asp:LinkButton>
+                                                <asp:LinkButton runat="server" CommandName="DeleteKB" CommandArgument='<%# Eval("KnowledgeBaseID") %>' CssClass="btn btn--sm" style="background:#ef4444;color:white;border:2px solid #ef4444;" OnClientClick="return confirm('Delete this entry?');" OnCommand="KBAction_Command">Delete</asp:LinkButton>
+                                            </td>
+                                        </tr>
+                                    </ItemTemplate>
+                                </asp:Repeater>
+                            </tbody>
+                        </table>
+                        <asp:Panel ID="pnlNoKB" runat="server" Visible="false">
+                            <div class="empty-state">No knowledge base entries found.</div>
+                        </asp:Panel>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 </asp:Content>
@@ -219,6 +404,32 @@ function showCSSection(name, el) {
     if (sec) sec.classList.add('active');
     document.querySelectorAll('.sidebar__nav-item').forEach(function (i) { i.classList.remove('active'); });
     if (el) el.classList.add('active');
+    var hdn = document.getElementById('<%= hdnActiveSection.ClientID %>');
+    if (hdn) hdn.value = name;
 }
-</script>
+
+function switchChatbotTab(id, btn) {
+    document.querySelectorAll('#section-chatbot .tab-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelectorAll('#section-chatbot .tab-panel').forEach(function (p) { p.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    var panel = document.getElementById('chatbot-tab-' + id);
+    if (panel) panel.classList.add('active');
+    var hdn = document.getElementById('<%= hdnChatbotTab.ClientID %>');
+    if (hdn) hdn.value = id;
+}
+
+(function () {
+    var hdn = document.getElementById('<%= hdnActiveSection.ClientID %>');
+    if (!hdn) return;
+    var active = hdn.value || 'overview';
+    var navEl = document.getElementById('nav-' + active);
+    showCSSection(active, navEl);
+    if (active === 'chatbot') { 
+        var tabHdn = document.getElementById('<%= hdnChatbotTab.ClientID %>');
+        var tab = tabHdn ? (tabHdn.value || 'logs') : 'logs';
+        var tabBtn = document.querySelector('[data-chatbot-tab="' + tab + '"]');
+        switchChatbotTab(tab, tabBtn);
+    }
+})();
+    </script>
 </asp:Content>
