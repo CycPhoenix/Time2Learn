@@ -111,6 +111,23 @@
         /* ── Empty state ── */
         .empty-state { padding:60px 24px; text-align:center; color:var(--text-light); }
 
+        /* ── Modal ── */
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:2000; display:none; align-items:center; justify-content:center; padding:20px; }
+        .modal-overlay.open { display:flex; animation:fadeIn 0.2s ease; }
+        .modal-box { background:white; border-radius:var(--radius-xl); width:100%; max-width:640px; max-height:90vh; overflow-y:auto; box-shadow:0 25px 60px rgba(0,0,0,0.3); }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; padding:22px 28px; border-bottom:1px solid var(--border); }
+        .modal-header h3 { font-size:1.1rem; margin:0; }
+        .modal-close { width:32px; height:32px; border-radius:50%; background:var(--bg-light); border:none; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; transition:var(--t-fast); line-height:1; }
+        .modal-close:hover { background:#fee2e2; color:#991b1b; }
+        .modal-body { padding:24px 28px; }
+        .modal-footer { padding:16px 28px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; align-items:center; flex-wrap:wrap; }
+        .form-msg-error { background:#fee2e2; color:#991b1b; padding:10px 14px; border-radius:var(--radius); font-size:0.85rem; margin-bottom:12px; }
+        [data-theme="dark"] .modal-box { background:#2a2a2e; }
+        [data-theme="dark"] .modal-header { border-color:#444; }
+        [data-theme="dark"] .modal-header h3 { color:#fff; }
+        [data-theme="dark"] .modal-footer { border-color:#444; }
+        [data-theme="dark"] .modal-close { background:#333; color:#ccc; }
+
         /* ── Dark mode ── */
         [data-theme="dark"] .dashboard-layout { background:#18191a; }
         [data-theme="dark"] .inst-main { background:#18191a; }
@@ -249,10 +266,13 @@
             </div>
 
             <!-- ── My Courses ── -->
+            <asp:HiddenField ID="hdnEditCourseID" runat="server" Value="0" />
+            <asp:HiddenField ID="hdnShowCourseModal" runat="server" Value="false" />
+
             <div class="inst-section" id="section-my-courses">
                 <div class="dash-page-header">
                     <h1>My Courses</h1>
-                    <p style="color:var(--text-light);font-size:0.9rem;">All courses you've created.</p>
+                    <p style="color:var(--text-light);font-size:0.9rem;">Manage, edit, publish, or delete your courses.</p>
                 </div>
                 <div class="inst-table-card">
                     <div class="inst-table-header">
@@ -264,30 +284,38 @@
                             </div>
                             <select class="inst-filter-select" onchange="instFilterCourses(this.value)">
                                 <option value="">All Status</option>
-                                <option value="active">Active</option>
+                                <option value="published">Published</option>
                                 <option value="draft">Draft</option>
+                                <option value="archived">Archived</option>
                             </select>
+                            <asp:Button ID="btnShowAddCourse" runat="server" Text="+ Add Course" CssClass="btn btn--primary btn--sm" OnClick="btnShowAddCourse_Click" CausesValidation="false" />
                         </div>
                     </div>
                     <table class="inst-table" id="tblMyCourses">
                         <thead>
-                            <tr><th>#</th><th>Title</th><th>Category</th><th>Level</th><th>Status</th><th>Students</th><th>Price</th></tr>
+                            <tr><th>#</th><th>Title</th><th>Category</th><th>Level</th><th>Status</th><th>Students</th><th>Price</th><th>Actions</th></tr>
                         </thead>
                         <tbody>
-                            <asp:Repeater ID="rptMyCourses" runat="server">
+                            <asp:Repeater ID="rptMyCourses" runat="server" OnItemCommand="CourseAction_Command">
                                 <ItemTemplate>
                                     <tr data-status="<%# Eval("CourseStatus").ToString().ToLower() %>" data-title="<%# Eval("CourseTitle").ToString().ToLower() %>">
                                         <td><strong><%# Eval("CourseID") %></strong></td>
                                         <td><%# Eval("CourseTitle") %></td>
                                         <td><%# Eval("CategoryName") %></td>
                                         <td>
-                                            <span class="chip chip--<%# Eval("DifficultyLevel").ToString().ToLower() == "beginner" ? "beginner" : Eval("DifficultyLevel").ToString().ToLower() == "intermediate" ? "inter" : "advanced" %>">
-                                                <%# Eval("DifficultyLevel") %>
-                                            </span>
+                                            <span class="chip chip--<%# Eval("DifficultyLevel").ToString().ToLower() == "intermediate" ? "inter" : Eval("DifficultyLevel").ToString().ToLower() %>"><%# Eval("DifficultyLevel") %></span>
                                         </td>
                                         <td><span class="chip chip--<%# Eval("CourseStatus").ToString().ToLower() %>"><%# Eval("CourseStatus") %></span></td>
                                         <td><%# Eval("StudentCount") %></td>
                                         <td>RM <%# Eval("Price", "{0:0.00}") %></td>
+                                        <td class="tbl-actions">
+                                            <asp:Button runat="server" Text="Edit" CssClass="tbl-btn tbl-btn--edit"
+                                                CommandName="EditCourse" CommandArgument='<%# Eval("CourseID") %>' CausesValidation="false" />
+                                            <a href='CourseDetail.aspx?id=<%# Eval("CourseID") %>' class="tbl-btn tbl-btn--view" target="_blank">View</a>
+                                            <asp:Button runat="server" Text="Delete" CssClass="tbl-btn tbl-btn--delete"
+                                                CommandName="DeleteCourse" CommandArgument='<%# Eval("CourseID") %>' CausesValidation="false"
+                                                OnClientClick="return confirm('Delete this course and all its lessons? This cannot be undone.');" />
+                                        </td>
                                     </tr>
                                 </ItemTemplate>
                             </asp:Repeater>
@@ -646,6 +674,57 @@
 
         </main>
     </div>
+
+    <!-- ── Add / Edit Course Modal ── -->
+    <div class="modal-overlay" id="courseModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="courseModalTitle">Add New Course</h3>
+                <asp:Button ID="btnCancelCourse" runat="server" Text="✕" CssClass="modal-close" OnClick="btnCancelCourse_Click" CausesValidation="false" />
+            </div>
+            <div class="modal-body">
+                <asp:Label ID="lblCourseMsg" runat="server" Visible="false" CssClass="form-msg-error" />
+                <div class="form-group">
+                    <label>Course Title *</label>
+                    <asp:TextBox ID="txtCourseTitle" runat="server" placeholder="e.g. Advanced Python Programming" />
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <asp:DropDownList ID="ddlCourseCategory" runat="server" />
+                    </div>
+                    <div class="form-group">
+                        <label>Level *</label>
+                        <asp:DropDownList ID="ddlCourseLevel" runat="server">
+                            <asp:ListItem Text="Beginner" Value="Beginner" />
+                            <asp:ListItem Text="Intermediate" Value="Intermediate" />
+                            <asp:ListItem Text="Advanced" Value="Advanced" />
+                        </asp:DropDownList>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Price (RM)</label>
+                    <asp:TextBox ID="txtCoursePrice" runat="server" placeholder="0" />
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <asp:TextBox ID="txtCourseDesc" runat="server" TextMode="MultiLine" placeholder="Brief description of the course…" />
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <asp:DropDownList ID="ddlCourseStatus" runat="server">
+                        <asp:ListItem Text="Draft" Value="Draft" />
+                        <asp:ListItem Text="Published" Value="Published" />
+                        <asp:ListItem Text="Archived" Value="Archived" />
+                    </asp:DropDownList>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <asp:Button ID="btnCancelCourse2" runat="server" Text="Cancel" CssClass="btn btn--outline" OnClick="btnCancelCourse_Click" CausesValidation="false" />
+                <asp:Button ID="btnSaveCourse" runat="server" Text="Save Course" CssClass="btn btn--primary" OnClick="btnSaveCourse_Click" CausesValidation="false" />
+            </div>
+        </div>
+    </div>
 </asp:Content>
 
 <asp:Content ID="ScriptsContent" ContentPlaceHolderID="ScriptsContent" runat="server">
@@ -669,6 +748,28 @@
     var navEl = document.getElementById('nav-' + active);
     showInstSection(active, navEl);
 })();
+
+// Course modal
+function openCourseModal(isEdit) {
+    document.getElementById('courseModal').classList.add('open');
+    var t = document.getElementById('courseModalTitle');
+    if (t) t.textContent = isEdit ? 'Edit Course' : 'Add New Course';
+}
+function closeCourseModal() {
+    document.getElementById('courseModal').classList.remove('open');
+}
+// Restore modal open state after postback
+(function () {
+    var hdn = document.getElementById('<%= hdnShowCourseModal.ClientID %>');
+    if (hdn && hdn.value === 'true') {
+        var isEdit = document.getElementById('<%= hdnEditCourseID.ClientID %>').value !== '0';
+        openCourseModal(isEdit);
+    }
+})();
+// Close modal when clicking overlay background
+document.getElementById('courseModal').addEventListener('click', function (e) {
+    if (e.target === this) closeCourseModal();
+});
 
 function toggleVideoField(type) {
     var f = document.getElementById('videoUrlField');
@@ -713,5 +814,5 @@ function instToggle(wrap) {
     var rows = tbl.querySelectorAll('tbody tr');
     if (rows.length === 0) tbl.style.display = 'none';
 })();
-</script>
+    </script>
 </asp:Content>
