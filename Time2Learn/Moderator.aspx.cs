@@ -22,7 +22,7 @@ namespace Time2Learn
         {
             int userID = AuthHelper.GetUserID();
 
-            DataTable me = DBHelper.ExecuteQuery("SELECT Avatar, FirstName, LastName, Email FROM Users WHERE UserID = @UID",
+            DataTable me = DBHelper.ExecuteQuery(@"SELECT Avatar, FirstName, LastName, Email FROM Users WHERE UserID = @UID",
                 new System.Data.SqlClient.SqlParameter[]
                 {
                     new System.Data.SqlClient.SqlParameter("@UID", userID)
@@ -44,12 +44,12 @@ namespace Time2Learn
             litAnnCount.Text = annCount?.ToString() ?? "0";
 
             // Recent threads
-            DataTable recent = DBHelper.ExecuteQuery("SELECT TOP 5 t.ThreadID, t.Title, t.CreatedAt, u.FirstName + ' ' + u.LastName AS AuthorName, cat.CategoryName, (SELECT COUNT(*) FROM Discussion_Posts p WHERE p.ThreadID = t.ThreadID) AS PostCount FROM Discussion_Threads t INNER JOIN Users u ON t.UserID = u.UserID INNER JOIN Categories cat ON t.CategoryID = cat.CategoryID ORDER BY t.CreatedAt DESC");
+            DataTable recent = DBHelper.ExecuteQuery(@"SELECT TOP 5 t.ThreadID, t.Title, t.CreatedAt, u.FirstName + ' ' + u.LastName AS AuthorName, cat.CategoryName, (SELECT COUNT(*) FROM Discussion_Posts p WHERE p.ThreadID = t.ThreadID) AS PostCount FROM Discussion_Threads t INNER JOIN Users u ON t.UserID = u.UserID INNER JOIN Categories cat ON t.CategoryID = cat.CategoryID ORDER BY t.CreatedAt DESC");
             rptRecentThreads.DataSource = recent;
             rptRecentThreads.DataBind();
 
             // All threads
-            DataTable allThreads = DBHelper.ExecuteQuery("SELECT t.ThreadID, t.Title, t.CreatedAt, u.FirstName + ' ' + u.LastName AS AuthorName, cat.CategoryName, (SELECT COUNT(*) FROM Discussion_Posts p WHERE p.ThreadID = t.ThreadID) AS PostCount FROM Discussion_Threads t INNER JOIN Users u ON t.UserID = u.UserID INNER JOIN Categories cat ON t.CategoryID = cat.CategoryID ORDER BY t.CreatedAt DESC");
+            DataTable allThreads = DBHelper.ExecuteQuery(@"SELECT t.ThreadID, t.Title, t.CreatedAt, u.FirstName + ' ' + u.LastName AS AuthorName, cat.CategoryName, (SELECT COUNT(*) FROM Discussion_Posts p WHERE p.ThreadID = t.ThreadID) AS PostCount FROM Discussion_Threads t INNER JOIN Users u ON t.UserID = u.UserID INNER JOIN Categories cat ON t.CategoryID = cat.CategoryID ORDER BY t.CreatedAt DESC");
             litAllThreadCount.Text = allThreads.Rows.Count.ToString();
             pnlNoThreads.Visible = allThreads.Rows.Count == 0;
             rptThreads.DataSource = allThreads;
@@ -181,6 +181,7 @@ namespace Time2Learn
                 });
             txtAnnTitle.Text = "";
             txtAnnContent.Text = "";
+            hdnActiveSection.Value = "announcements";
             lblAnnMsg.Text = "Announcement posted.";
             lblAnnMsg.ForeColor = System.Drawing.Color.Green;
             LoadData();
@@ -201,6 +202,7 @@ namespace Time2Learn
                     {
                         new System.Data.SqlClient.SqlParameter("@TID", threadID)
                     });
+                hdnActiveSection.Value = "threads";
                 LoadData();
             }
         }
@@ -215,6 +217,7 @@ namespace Time2Learn
                     {
                         new System.Data.SqlClient.SqlParameter("@AID", annID)
                     });
+                hdnActiveSection.Value = "announcements";
                 LoadData();
             }
         }
