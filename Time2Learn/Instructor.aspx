@@ -236,7 +236,7 @@
                 <div class="inst-table-card">
                     <div class="inst-table-header">
                         <h3>Course List Preview</h3>
-                        <button class="btn btn--primary btn--sm" onclick="showInstSection('my-courses', document.getElementById('nav-my-courses'))">Manage All →</button>
+                        <button type="button" class="btn btn--primary btn--sm" onclick="showInstSection('my-courses', document.getElementById('nav-my-courses'))">Manage All →</button>
                     </div>
                     <table class="inst-table">
                         <thead>
