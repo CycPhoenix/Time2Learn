@@ -120,11 +120,7 @@ namespace Time2Learn
             foreach (DataRow r in courses.Rows)
                 ddlUploadCourse.Items.Add(new System.Web.UI.WebControls.ListItem(r["CourseTitle"].ToString(), r["CourseID"].ToString()));
 
-            if (!string.IsNullOrEmpty(selectedVal) && selectedVal != "0")
-            {
-                var item = ddlUploadCourse.Items.FindByValue(selectedVal);
-                if (item != null) item.Selected = true;
-            }
+            if (!string.IsNullOrEmpty(selectedVal) && selectedVal != "0" && ddlUploadCourse.Items.FindByValue(selectedVal) != null) ddlUploadCourse.SelectedValue = selectedVal;
 
             int courseID = 0;
             int.TryParse(ddlUploadCourse.SelectedValue, out courseID);
@@ -713,13 +709,15 @@ namespace Time2Learn
             int.TryParse(hdnEditCourseID.Value, out courseID);
             int userID = AuthHelper.GetUserID();
 
-            if (courseID == 0)
+            try
             {
-                // INSERT
-                DBHelper.ExecuteNonQuery(@"
-                    INSERT INTO Courses (CourseTitle, CategoryID, DifficultyLevel, Price, CourseDescription, CourseStatus, CreatedBy)
-                    VALUES (@Title, @CatID, @Level, @Price, @Desc, @Status, @UID)",
-                    new SqlParameter[] {
+                if (courseID == 0)
+                {
+                    // INSERT
+                    DBHelper.ExecuteNonQuery(@"
+                    INSERT INTO Courses (CourseTitle, CategoryID, DifficultyLevel, Price, CourseDescription, CourseStatus, CreatedBy, CreatedDate)
+                        VALUES (@Title, @CatID, @Level, @Price, @Desc, @Status, @UID, GETDATE())",
+                        new SqlParameter[] {
                         new SqlParameter("@Title",  title),
                         new SqlParameter("@CatID",  int.Parse(catID)),
                         new SqlParameter("@Level",  level),
@@ -727,29 +725,29 @@ namespace Time2Learn
                         new SqlParameter("@Desc",   desc),
                         new SqlParameter("@Status", status),
                         new SqlParameter("@UID",    userID)
-                    });
-            }
-            else
-            {
-                // UPDATE — verify ownership
-                object own = DBHelper.ExecuteScalar(
-                    "SELECT CourseID FROM Courses WHERE CourseID = @CID AND CreatedBy = @UID",
-                    new SqlParameter[] {
+                        });
+                }
+                else
+                {
+                    // UPDATE — verify ownership
+                    object own = DBHelper.ExecuteScalar(
+                        "SELECT CourseID FROM Courses WHERE CourseID = @CID AND CreatedBy = @UID",
+                        new SqlParameter[] {
                         new SqlParameter("@CID", courseID),
                         new SqlParameter("@UID", userID)
-                    });
-                if (own == null)
-                {
-                    lblCourseMsg.Text = "You do not own this course.";
-                    lblCourseMsg.Visible = true;
-                    LoadData();
-                    return;
-                }
-                DBHelper.ExecuteNonQuery(@"
+                        });
+                    if (own == null)
+                    {
+                        lblCourseMsg.Text = "You do not own this course.";
+                        lblCourseMsg.Visible = true;
+                        LoadData();
+                        return;
+                    }
+                    DBHelper.ExecuteNonQuery(@"
                     UPDATE Courses SET CourseTitle = @Title, CategoryID = @CatID, DifficultyLevel = @Level,
                         Price = @Price, CourseDescription = @Desc, CourseStatus = @Status
                     WHERE CourseID = @CID AND CreatedBy = @UID",
-                    new SqlParameter[] {
+                        new SqlParameter[] {
                         new SqlParameter("@Title",  title),
                         new SqlParameter("@CatID",  int.Parse(catID)),
                         new SqlParameter("@Level",  level),
@@ -758,8 +756,17 @@ namespace Time2Learn
                         new SqlParameter("@Status", status),
                         new SqlParameter("@CID",    courseID),
                         new SqlParameter("@UID",    userID)
-                    });
+                        });
+                }
             }
+            catch (Exception ex)
+            {
+                lblCourseMsg.Text = "Error saving course: " + ex.Message;
+                lblCourseMsg.Visible = true;
+                LoadData();
+                return;
+            }
+            
 
             // Close modal after success
             hdnShowCourseModal.Value = "false";
