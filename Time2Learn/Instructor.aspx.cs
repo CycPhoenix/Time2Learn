@@ -240,17 +240,15 @@ namespace Time2Learn
             if (editID <= 0)
             {
                 // INSERT
-                DBHelper.ExecuteNonQuery(
-                    "INSERT INTO Lessons (CourseID, LessonTitle, LessonOrder, LessonType) VALUES (@CID, @Title, @Ord, @Type)",
+                object newID = DBHelper.ExecuteScalar(
+                    "INSERT INTO Lessons (CourseID, LessonTitle, LessonOrder, LessonType) VALUES (@CID, @Title, @Ord, @Type); SELECT SCOPE_IDENTITY()",
                     new SqlParameter[] {
                         new SqlParameter("@CID", courseID),
                         new SqlParameter("@Title", title),
                         new SqlParameter("@Ord", order),
                         new SqlParameter("@Type", lessonType)
                     });
-
-                object newID = DBHelper.ExecuteScalar("SELECT SCOPE_IDENTITY()");
-                int lessonID = Convert.ToInt32(newID);
+                int lessonID = (newID != null && newID != DBNull.Value) ? Convert.ToInt32(newID) : 0;
 
                 if (lessonType == "Video" && !string.IsNullOrEmpty(videoURL))
                 {
