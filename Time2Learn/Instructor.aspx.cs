@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -94,6 +95,476 @@ namespace Time2Learn
             pnlNoReviews.Visible = reviews.Rows.Count == 0;
             rptReviews.DataSource = reviews;
             rptReviews.DataBind();
+
+            LoadInstructorCourses();
+            LoadSupportHistory();
+            LoadProfile();
+        }
+
+        private void LoadInstructorCourses()
+        {
+            int userID = AuthHelper.GetUserID();
+            DataTable courses = DBHelper.ExecuteQuery(
+                "SELECT CourseID, CourseTitle FROM Courses WHERE CreatedBy = @UID ORDER BY CourseID DESC",
+                new SqlParameter[] { new SqlParameter("@UID", userID) });
+
+            string selectedVal = hdnUploadCourseID.Value;
+            ddlUploadCourse.Items.Clear();
+            ddlUploadCourse.Items.Add(new System.Web.UI.WebControls.ListItem("— Select a course —", "0"));
+            foreach (DataRow r in courses.Rows)
+                ddlUploadCourse.Items.Add(new System.Web.UI.WebControls.ListItem(r["CourseTitle"].ToString(), r["CourseID"].ToString()));
+
+            if (!string.IsNullOrEmpty(selectedVal) && selectedVal != "0")
+            {
+                var item = ddlUploadCourse.Items.FindByValue(selectedVal);
+                if (item != null) item.Selected = true;
+            }
+
+            int courseID = 0;
+            int.TryParse(ddlUploadCourse.SelectedValue, out courseID);
+            LoadLessons(courseID);
+        }
+
+        private void LoadLessons(int courseID)
+        {
+            if (courseID <= 0)
+            {
+                pnlNoLessons.Visible = true;
+                litLessonCount.Text = "0";
+                rptLessons.DataSource = null;
+                rptLessons.DataBind();
+                return;
+            }
+
+            DataTable lessons = DBHelper.ExecuteQuery(@"
+                SELECT l.LessonID, l.LessonTitle, l.LessonOrder, l.LessonType,
+                       lr.ResourceURL
+                FROM Lessons l
+                LEFT JOIN Lesson_Resources lr ON l.LessonID = lr.LessonID AND lr.ResourceType = 'Video'
+                WHERE l.CourseID = @CID
+                ORDER BY l.LessonOrder",
+                new SqlParameter[] { new SqlParameter("@CID", courseID) });
+
+            litLessonCount.Text = lessons.Rows.Count.ToString();
+            pnlNoLessons.Visible = lessons.Rows.Count == 0;
+            rptLessons.DataSource = lessons;
+            rptLessons.DataBind();
+        }
+
+        private void LoadQuizQuestions(int lessonID)
+        {
+            DataTable questions = DBHelper.ExecuteQuery(
+                "SELECT QuizID, QuestionText, OptionA, OptionB, OptionC, OptionD, CorrectOption FROM Quiz WHERE LessonID = @LID ORDER BY QuizID",
+                new SqlParameter[] { new SqlParameter("@LID", lessonID) });
+            pnlNoQuestions.Visible = questions.Rows.Count == 0;
+            rptQuizQuestions.DataSource = questions;
+            rptQuizQuestions.DataBind();
+        }
+
+        private void LoadSupportHistory()
+        {
+            int userID = AuthHelper.GetUserID();
+            DataTable tickets = DBHelper.ExecuteQuery(
+                "SELECT TicketID, Subject, TicketStatus, CreatedDate FROM Support_Tickets WHERE UserID = @UID ORDER BY CreatedDate DESC",
+                new SqlParameter[] { new SqlParameter("@UID", userID) });
+            pnlNoInstTickets.Visible = tickets.Rows.Count == 0;
+            rptInstTickets.DataSource = tickets;
+            rptInstTickets.DataBind();
+        }
+
+        protected string GetCorrectOptionText(object correct, object a, object b, object c, object d)
+        {
+            string key = correct?.ToString() ?? "";
+            if (key == "A") return a?.ToString() ?? "";
+            if (key == "B") return b?.ToString() ?? "";
+            if (key == "C") return c?.ToString() ?? "";
+            if (key == "D") return d?.ToString() ?? "";
+            return "";
+        }
+
+        protected void ddlUploadCourse_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            hdnUploadCourseID.Value = ddlUploadCourse.SelectedValue;
+            pnlLessonForm.Visible = false;
+            pnlQuizManager.Visible = false;
+            hdnActiveSection.Value = "upload-material";
+            LoadData();
+        }
+
+        protected void btnShowAddLesson_Click(object sender, EventArgs e)
+        {
+            hdnEditLessonID.Value = "0";
+            litLessonFormTitle.Text = "Add Lesson";
+            txtLessonTitle.Text = "";
+            txtLessonOrder.Text = "";
+            txtVideoURL.Text = "";
+            ddlLessonType.SelectedIndex = 0;
+            lblLessonMsg.Text = "";
+            pnlLessonForm.Visible = true;
+            pnlQuizManager.Visible = false;
+            hdnActiveSection.Value = "upload-material";
+        }
+
+        protected void btnSaveLesson_Click(object sender, EventArgs e)
+        {
+            hdnActiveSection.Value = "upload-material";
+
+            int courseID = 0;
+            int.TryParse(hdnUploadCourseID.Value, out courseID);
+            if (courseID <= 0)
+            {
+                lblLessonMsg.Text = "Select a course first.";
+                lblLessonMsg.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            string title = txtLessonTitle.Text.Trim();
+            if (string.IsNullOrEmpty(title))
+            {
+                lblLessonMsg.Text = "Lesson title is required.";
+                lblLessonMsg.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            string lessonType = ddlLessonType.SelectedValue;
+            int order = 1;
+            int.TryParse(txtLessonOrder.Text.Trim(), out order);
+            if (order <= 0) order = 1;
+            string videoURL = txtVideoURL.Text.Trim();
+
+            int editID = 0;
+            int.TryParse(hdnEditLessonID.Value, out editID);
+
+            if (editID <= 0)
+            {
+                // INSERT
+                DBHelper.ExecuteNonQuery(
+                    "INSERT INTO Lessons (CourseID, LessonTitle, LessonOrder, LessonType) VALUES (@CID, @Title, @Ord, @Type)",
+                    new SqlParameter[] {
+                        new SqlParameter("@CID", courseID),
+                        new SqlParameter("@Title", title),
+                        new SqlParameter("@Ord", order),
+                        new SqlParameter("@Type", lessonType)
+                    });
+
+                object newID = DBHelper.ExecuteScalar("SELECT SCOPE_IDENTITY()");
+                int lessonID = Convert.ToInt32(newID);
+
+                if (lessonType == "Video" && !string.IsNullOrEmpty(videoURL))
+                {
+                    DBHelper.ExecuteNonQuery(
+                        "INSERT INTO Lesson_Resources (LessonID, ResourceURL, ResourceType) VALUES (@LID, @URL, 'Video')",
+                        new SqlParameter[] {
+                            new SqlParameter("@LID", lessonID),
+                            new SqlParameter("@URL", videoURL)
+                        });
+                }
+            }
+            else
+            {
+                // UPDATE
+                DBHelper.ExecuteNonQuery(
+                    "UPDATE Lessons SET LessonTitle = @Title, LessonOrder = @Ord, LessonType = @Type WHERE LessonID = @LID",
+                    new SqlParameter[] {
+                        new SqlParameter("@Title", title),
+                        new SqlParameter("@Ord", order),
+                        new SqlParameter("@Type", lessonType),
+                        new SqlParameter("@LID", editID)
+                    });
+
+                if (lessonType == "Video")
+                {
+                    object existing = DBHelper.ExecuteScalar(
+                        "SELECT COUNT(*) FROM Lesson_Resources WHERE LessonID = @LID AND ResourceType = 'Video'",
+                        new SqlParameter[] { new SqlParameter("@LID", editID) });
+
+                    if (Convert.ToInt32(existing) > 0)
+                    {
+                        DBHelper.ExecuteNonQuery(
+                            "UPDATE Lesson_Resources SET ResourceURL = @URL WHERE LessonID = @LID AND ResourceType = 'Video'",
+                            new SqlParameter[] {
+                                new SqlParameter("@URL", videoURL),
+                                new SqlParameter("@LID", editID)
+                            });
+                    }
+                    else if (!string.IsNullOrEmpty(videoURL))
+                    {
+                        DBHelper.ExecuteNonQuery(
+                            "INSERT INTO Lesson_Resources (LessonID, ResourceURL, ResourceType) VALUES (@LID, @URL, 'Video')",
+                            new SqlParameter[] {
+                                new SqlParameter("@LID", editID),
+                                new SqlParameter("@URL", videoURL)
+                            });
+                    }
+                }
+                else
+                {
+                    // Not video — remove any existing video resource
+                    DBHelper.ExecuteNonQuery(
+                        "DELETE FROM Lesson_Resources WHERE LessonID = @LID AND ResourceType = 'Video'",
+                        new SqlParameter[] { new SqlParameter("@LID", editID) });
+                }
+            }
+
+            pnlLessonForm.Visible = false;
+            lblLessonMsg.Text = "";
+            LoadData();
+        }
+
+        protected void btnCancelLesson_Click(object sender, EventArgs e)
+        {
+            pnlLessonForm.Visible = false;
+            hdnActiveSection.Value = "upload-material";
+            LoadData();
+        }
+
+        protected void LessonAction_Command(object sender, CommandEventArgs e)
+        {
+            hdnActiveSection.Value = "upload-material";
+
+            if (e.CommandName == "EditLesson")
+            {
+                int lessonID = Convert.ToInt32(e.CommandArgument);
+                DataTable lesson = DBHelper.ExecuteQuery(
+                    "SELECT LessonTitle, LessonOrder, LessonType FROM Lessons WHERE LessonID = @LID",
+                    new SqlParameter[] { new SqlParameter("@LID", lessonID) });
+
+                if (lesson.Rows.Count > 0)
+                {
+                    DataRow r = lesson.Rows[0];
+                    hdnEditLessonID.Value = lessonID.ToString();
+                    litLessonFormTitle.Text = "Edit Lesson";
+                    txtLessonTitle.Text = r["LessonTitle"].ToString();
+                    txtLessonOrder.Text = r["LessonOrder"].ToString();
+                    ddlLessonType.SelectedValue = r["LessonType"].ToString();
+
+                    object url = DBHelper.ExecuteScalar(
+                        "SELECT ResourceURL FROM Lesson_Resources WHERE LessonID = @LID AND ResourceType = 'Video'",
+                        new SqlParameter[] { new SqlParameter("@LID", lessonID) });
+                    txtVideoURL.Text = url != null && url != DBNull.Value ? url.ToString() : "";
+
+                    lblLessonMsg.Text = "";
+                    pnlLessonForm.Visible = true;
+                    pnlQuizManager.Visible = false;
+                }
+            }
+            else if (e.CommandName == "DeleteLesson")
+            {
+                int lessonID = Convert.ToInt32(e.CommandArgument);
+                DBHelper.ExecuteNonQuery(
+                    "DELETE FROM Quiz WHERE LessonID = @LID",
+                    new SqlParameter[] { new SqlParameter("@LID", lessonID) });
+                DBHelper.ExecuteNonQuery(
+                    "DELETE FROM Lesson_Resources WHERE LessonID = @LID",
+                    new SqlParameter[] { new SqlParameter("@LID", lessonID) });
+                DBHelper.ExecuteNonQuery(
+                    "DELETE FROM Lessons WHERE LessonID = @LID",
+                    new SqlParameter[] { new SqlParameter("@LID", lessonID) });
+                pnlLessonForm.Visible = false;
+                pnlQuizManager.Visible = false;
+                LoadData();
+            }
+            else if (e.CommandName == "ManageQuiz")
+            {
+                string[] args = e.CommandArgument.ToString().Split('|');
+                int lessonID = Convert.ToInt32(args[0]);
+                string lessonTitle = args.Length > 1 ? args[1] : "";
+                hdnEditQuizLessonID.Value = lessonID.ToString();
+                litQuizLessonTitle.Text = lessonTitle;
+                txtQuizQuestion.Text = "";
+                txtOptA.Text = "";
+                txtOptB.Text = "";
+                txtOptC.Text = "";
+                txtOptD.Text = "";
+                ddlCorrectOpt.SelectedIndex = 0;
+                lblQuizMsg.Text = "";
+                pnlQuizManager.Visible = true;
+                pnlLessonForm.Visible = false;
+                LoadQuizQuestions(lessonID);
+            }
+        }
+
+        protected void btnAddQuestion_Click(object sender, EventArgs e)
+        {
+            hdnActiveSection.Value = "upload-material";
+
+            int lessonID = 0;
+            int.TryParse(hdnEditQuizLessonID.Value, out lessonID);
+            if (lessonID <= 0) return;
+
+            string question = txtQuizQuestion.Text.Trim();
+            string optA = txtOptA.Text.Trim();
+            string optB = txtOptB.Text.Trim();
+            string optC = txtOptC.Text.Trim();
+            string optD = txtOptD.Text.Trim();
+            string correct = ddlCorrectOpt.SelectedValue;
+
+            if (string.IsNullOrEmpty(question) || string.IsNullOrEmpty(optA) ||
+                string.IsNullOrEmpty(optB) || string.IsNullOrEmpty(optC) || string.IsNullOrEmpty(optD))
+            {
+                lblQuizMsg.Text = "Fill in all fields.";
+                lblQuizMsg.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            DBHelper.ExecuteNonQuery(
+                "INSERT INTO Quiz (LessonID, QuestionText, OptionA, OptionB, OptionC, OptionD, CorrectOption) VALUES (@LID, @Q, @A, @B, @C, @D, @Cor)",
+                new SqlParameter[] {
+                    new SqlParameter("@LID", lessonID),
+                    new SqlParameter("@Q", question),
+                    new SqlParameter("@A", optA),
+                    new SqlParameter("@B", optB),
+                    new SqlParameter("@C", optC),
+                    new SqlParameter("@D", optD),
+                    new SqlParameter("@Cor", correct)
+                });
+
+            txtQuizQuestion.Text = "";
+            txtOptA.Text = "";
+            txtOptB.Text = "";
+            txtOptC.Text = "";
+            txtOptD.Text = "";
+            ddlCorrectOpt.SelectedIndex = 0;
+            lblQuizMsg.Text = "✓ Question added.";
+            lblQuizMsg.ForeColor = System.Drawing.Color.Green;
+
+            LoadQuizQuestions(lessonID);
+            // Keep quiz manager open and re-bind lessons
+            int courseID = 0;
+            int.TryParse(hdnUploadCourseID.Value, out courseID);
+            LoadLessons(courseID);
+        }
+
+        protected void QuizAction_Command(object sender, CommandEventArgs e)
+        {
+            hdnActiveSection.Value = "upload-material";
+
+            if (e.CommandName == "DeleteQ")
+            {
+                int quizID = Convert.ToInt32(e.CommandArgument);
+                DBHelper.ExecuteNonQuery(
+                    "DELETE FROM Quiz WHERE QuizID = @QID",
+                    new SqlParameter[] { new SqlParameter("@QID", quizID) });
+
+                int lessonID = 0;
+                int.TryParse(hdnEditQuizLessonID.Value, out lessonID);
+                LoadQuizQuestions(lessonID);
+                int courseID = 0;
+                int.TryParse(hdnUploadCourseID.Value, out courseID);
+                LoadLessons(courseID);
+            }
+        }
+
+        protected void btnCloseQuiz_Click(object sender, EventArgs e)
+        {
+            pnlQuizManager.Visible = false;
+            hdnActiveSection.Value = "upload-material";
+            LoadData();
+        }
+
+        private void LoadProfile()
+        {
+            int userID = AuthHelper.GetUserID();
+            DataTable p = DBHelper.ExecuteQuery(
+                "SELECT FirstName, LastName, Email, Avatar FROM Users WHERE UserID = @UID",
+                new SqlParameter[] { new SqlParameter("@UID", userID) });
+            if (p.Rows.Count > 0)
+            {
+                DataRow r = p.Rows[0];
+                string fn = r["FirstName"].ToString();
+                string ln = r["LastName"].ToString();
+                string av = r["Avatar"] != DBNull.Value ? r["Avatar"].ToString() : fn.Length > 0 ? fn[0].ToString().ToUpper() : "?";
+                string email = r["Email"].ToString();
+                txtProfileFirstName.Text = fn;
+                txtProfileLastName.Text = ln;
+                txtProfileAvatar.Text = av;
+                litProfileAvatar.Text = av;
+                litProfileName.Text = fn + " " + ln;
+                litProfileEmailDisp.Text = email;
+                litProfileEmailRO.Text = email;
+            }
+        }
+
+        protected void btnSaveProfile_Click(object sender, EventArgs e)
+        {
+            int userID = AuthHelper.GetUserID();
+            string firstName = txtProfileFirstName.Text.Trim();
+            string lastName = txtProfileLastName.Text.Trim();
+            string avatar = txtProfileAvatar.Text.Trim();
+            if (string.IsNullOrEmpty(avatar))
+                avatar = firstName.Length > 0 ? firstName[0].ToString().ToUpper() : "?";
+
+            DBHelper.ExecuteNonQuery(
+                "UPDATE Users SET FirstName = @FN, LastName = @LN, Avatar = @AV WHERE UserID = @UID",
+                new SqlParameter[] {
+                    new SqlParameter("@FN", firstName),
+                    new SqlParameter("@LN", lastName),
+                    new SqlParameter("@AV", avatar),
+                    new SqlParameter("@UID", userID)
+                });
+
+            AuthHelper.SetSession(userID, AuthHelper.GetUserRole(), firstName + " " + lastName);
+            hdnActiveSection.Value = "profile";
+            lblProfileMsg.Text = "✓ Profile updated.";
+            lblProfileMsg.ForeColor = System.Drawing.Color.Green;
+            LoadData();
+        }
+
+        protected void btnChangePassword_Click(object sender, EventArgs e)
+        {
+            int userID = AuthHelper.GetUserID();
+            string currentPwd = txtCurrentPwd.Text;
+            string newPwd = txtNewPwd.Text;
+            string confirmPwd = txtConfirmPwd.Text;
+
+            hdnActiveSection.Value = "settings";
+
+            if (string.IsNullOrEmpty(currentPwd) || string.IsNullOrEmpty(newPwd) || string.IsNullOrEmpty(confirmPwd))
+            {
+                lblPwdMsg.Text = "All fields are required.";
+                lblPwdMsg.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+            if (newPwd != confirmPwd)
+            {
+                lblPwdMsg.Text = "New passwords do not match.";
+                lblPwdMsg.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+            if (newPwd.Length < 6)
+            {
+                lblPwdMsg.Text = "New password must be at least 6 characters.";
+                lblPwdMsg.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            string currentHash = AuthHelper.HashPassword(currentPwd);
+            object stored = DBHelper.ExecuteScalar(
+                "SELECT PasswordHash FROM Users WHERE UserID = @UID AND PasswordHash = @Hash",
+                new SqlParameter[] {
+                    new SqlParameter("@UID", userID),
+                    new SqlParameter("@Hash", currentHash)
+                });
+
+            if (stored == null)
+            {
+                lblPwdMsg.Text = "Current password is incorrect.";
+                lblPwdMsg.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
+
+            DBHelper.ExecuteNonQuery(
+                "UPDATE Users SET PasswordHash = @Hash WHERE UserID = @UID",
+                new SqlParameter[] {
+                    new SqlParameter("@Hash", AuthHelper.HashPassword(newPwd)),
+                    new SqlParameter("@UID", userID)
+                });
+
+            txtCurrentPwd.Text = "";
+            txtNewPwd.Text = "";
+            txtConfirmPwd.Text = "";
+            lblPwdMsg.Text = "✓ Password updated successfully.";
+            lblPwdMsg.ForeColor = System.Drawing.Color.Green;
         }
     }
 }
