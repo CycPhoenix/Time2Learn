@@ -66,23 +66,38 @@
             </div>
             <nav class="sidebar__nav">
                 <div class="sidebar__section-label">Instructor</div>
-                <div class="sidebar__nav-item active" onclick="showInstSection('overview', this)">
+                <div class="sidebar__nav-item active" id="nav-overview" onclick="showInstSection('overview', this)">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
                     Overview
                 </div>
-                <div class="sidebar__nav-item" onclick="showInstSection('my-courses', this)">
+                <div class="sidebar__nav-item" id="nav-my-courses" onclick="showInstSection('my-courses', this)">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>
                     My Courses
                 </div>
-                <div class="sidebar__nav-item" onclick="showInstSection('students', this)">
+                <div class="sidebar__nav-item" id="nav-students" onclick="showInstSection('students', this)">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                     My Students
                 </div>
-                <div class="sidebar__nav-item" onclick="showInstSection('reviews', this)">
+                <div class="sidebar__nav-item" id="nav-reviews" onclick="showInstSection('reviews', this)">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                     Reviews
+                </div><div class="sidebar__nav-item" id="nav-upload-material" onclick="showInstSection('upload-material', this)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+                    Upload Material
+                </div>
+                <div class="sidebar__nav-item" id="nav-support-history" onclick="showInstSection('support-history', this)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                    Support History
                 </div>
                 <div class="sidebar__section-label">Account</div>
+                <div class="sidebar__nav-item" id="nav-profile" onclick="showInstSection('profile', this)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    My Profile
+                </div>
+                <div class="sidebar__nav-item" id="nav-settings" onclick="showInstSection('settings', this)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    Settings
+                </div>
                 <a href="Logout.aspx" class="sidebar__nav-item" style="color:#ef4444;">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
                     Log Out
@@ -91,6 +106,7 @@
         </aside>
 
         <!-- Main Content -->
+        <asp:HiddenField ID="hdnActiveSection" runat="server" Value="overview" />
         <main class="dashboard-content">
 
             <!-- Overview -->
@@ -214,6 +230,212 @@
                 </div>
             </div>
 
+            <!-- Upload Material -->
+            <div class="inst-section" id="section-upload-material">
+                <div class="dash-page-header"><h1>Upload Material</h1><p>Manage lessons and resources for your courses.</p></div>
+                <asp:HiddenField ID="hdnUploadCourseID" runat="server" Value="0" />
+                <asp:HiddenField ID="hdnEditLessonID" runat="server" Value="0" />
+                <asp:HiddenField ID="hdnEditQuizLessonID" runat="server" Value="0" />
+
+                <div class="admin-table-wrap" style="padding:20px;margin-bottom:20px;">
+                    <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:8px;">Select Course</label>
+                    <asp:DropDownList ID="ddlUploadCourse" runat="server" CssClass="status-select" style="width:100%;max-width:420px;" AutoPostBack="true" OnSelectedIndexChanged="ddlUploadCourse_SelectedIndexChanged" />
+                </div>
+
+                <asp:Panel ID="pnlLessonForm" runat="server" Visible="false" CssClass="admin-table-wrap" style="padding:20px;margin-bottom:20px;">
+                    <h3 style="margin-bottom:16px;"><asp:Literal ID="litLessonFormTitle" runat="server">Add Lesson</asp:Literal></h3>
+                    <div style="display:grid;grid-template-columns:1fr 160px 100px;gap:16px;margin-bottom:16px;">
+                        <div>
+                            <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Lesson Title *</label>
+                            <asp:TextBox ID="txtLessonTitle" runat="server" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Type</label>
+                            <asp:DropDownList ID="ddlLessonType" runat="server" CssClass="status-select" style="width:100%;" onchange="toggleVideoField(this.value)">
+                                <asp:ListItem Text="Video" Value="Video" />
+                                <asp:ListItem Text="Quiz" Value="Quiz" />
+                                <asp:ListItem Text="Coding" Value="Coding" />
+                            </asp:DropDownList>
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Order</label>
+                            <asp:TextBox ID="txtLessonOrder" runat="server" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" placeholder="1" />
+                        </div>
+                    </div>
+                    <div id="videoUrlField" style="margin-bottom:16px;">
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Video URL (.mp4)</label>
+                        <asp:TextBox ID="txtVideoURL" runat="server" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" placeholder="https://..." />
+                        <div style="font-size:0.78rem;color:var(--text-light);margin-top:4px;">Direct link to .mp4 file. Leave blank for Quiz / Coding lessons.</div>
+                    </div>
+                    <asp:Button ID="btnSaveLesson" runat="server" Text="Save Lesson" CssClass="btn btn--primary btn--sm" OnClick="btnSaveLesson_Click" CausesValidation="false" style="margin-right:8px;" />
+                    <asp:Button ID="btnCancelLesson" runat="server" Text="Cancel" CssClass="btn btn--outline btn--sm" OnClick="btnCancelLesson_Click" CausesValidation="false" />
+                    <asp:Label ID="lblLessonMsg" runat="server" style="margin-left:12px;font-size:0.85rem;" />
+                </asp:Panel>
+
+                <asp:Panel ID="pnlQuizManager" runat="server" Visible="false" CssClass="admin-table-wrap" style="padding:20px;margin-bottom:20px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                        <h3 style="margin:0;">Quiz: <asp:Literal ID="litQuizLessonTitle" runat="server" /></h3>
+                        <asp:Button ID="btnCloseQuiz" runat="server" Text="Close" CssClass="btn btn--outline btn--sm" OnClick="btnCloseQuiz_Click" CausesValidation="false" />
+                    </div>
+                    <div style="background:var(--bg-light);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+                        <div style="margin-bottom:10px;">
+                            <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Question *</label>
+                            <asp:TextBox ID="txtQuizQuestion" runat="server" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
+                            <div><label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:3px;">Option A</label><asp:TextBox ID="txtOptA" runat="server" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.88rem;box-sizing:border-box;" /></div>
+                            <div><label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:3px;">Option B</label><asp:TextBox ID="txtOptB" runat="server" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.88rem;box-sizing:border-box;" /></div>
+                            <div><label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:3px;">Option C</label><asp:TextBox ID="txtOptC" runat="server" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.88rem;box-sizing:border-box;" /></div>
+                            <div><label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:3px;">Option D</label><asp:TextBox ID="txtOptD" runat="server" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.88rem;box-sizing:border-box;" /></div>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:3px;">Correct Answer</label>
+                            <asp:DropDownList ID="ddlCorrectOpt" runat="server" CssClass="status-select">
+                                <asp:ListItem Text="A" Value="A" /><asp:ListItem Text="B" Value="B" /><asp:ListItem Text="C" Value="C" /><asp:ListItem Text="D" Value="D" />
+                            </asp:DropDownList>
+                        </div>
+                        <asp:Button ID="btnAddQuestion" runat="server" Text="+ Add Question" CssClass="btn btn--primary btn--sm" OnClick="btnAddQuestion_Click" CausesValidation="false" />
+                        <asp:Label ID="lblQuizMsg" runat="server" style="margin-left:10px;font-size:0.85rem;" />
+                    </div>
+                    <table class="data-table">
+                        <thead><tr><th>#</th><th>Question</th><th>Correct Answer</th><th>Action</th></tr></thead>
+                        <tbody>
+                            <asp:Repeater ID="rptQuizQuestions" runat="server">
+                                <ItemTemplate>
+                                    <tr>
+                                        <td><%# Container.ItemIndex + 1 %></td>
+                                        <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%# Eval("QuestionText") %></td>
+                                        <td><strong><%# Eval("CorrectOption") %></strong>: <%# GetCorrectOptionText(Eval("CorrectOption"), Eval("OptionA"), Eval("OptionB"), Eval("OptionC"), Eval("OptionD")) %></td>
+                                        <td><asp:LinkButton runat="server" CommandName="DeleteQ" CommandArgument='<%# Eval("QuizID") %>' CssClass="btn btn--sm" style="background:#ef4444;color:white;border:2px solid #ef4444;" OnClientClick="return confirm('Delete question?');" OnCommand="QuizAction_Command">Delete</asp:LinkButton></td>
+                                    </tr>
+                                </ItemTemplate>
+                            </asp:Repeater>
+                        </tbody>
+                    </table>
+                    <asp:Panel ID="pnlNoQuestions" runat="server" Visible="false">
+                        <div class="empty-state">No questions yet. Add above.</div>
+                    </asp:Panel>
+                </asp:Panel>
+
+                <div class="admin-table-wrap">
+                    <div class="admin-table-header">
+                        <h3>Lessons (<asp:Literal ID="litLessonCount" runat="server">0</asp:Literal>)</h3>
+                        <asp:Button ID="btnShowAddLesson" runat="server" Text="+ Add Lesson" CssClass="btn btn--primary btn--sm" OnClick="btnShowAddLesson_Click" CausesValidation="false" />
+                    </div>
+                    <table class="data-table">
+                        <thead><tr><th>Order</th><th>Title</th><th>Type</th><th>Video URL</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            <asp:Repeater ID="rptLessons" runat="server">
+                                <ItemTemplate>
+                                    <tr>
+                                        <td><%# Eval("LessonOrder") %></td>
+                                        <td><%# Eval("LessonTitle") %></td>
+                                        <td><span class="badge badge--<%# Eval("LessonType").ToString() == "Video" ? "resolved" : Eval("LessonType").ToString() == "Quiz" ? "open" : "in-progress" %>"><%# Eval("LessonType") %></span></td>
+                                        <td style="font-size:0.82rem;color:var(--text-light);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%# Eval("ResourceURL") != DBNull.Value && Eval("ResourceURL").ToString() != "" ? Eval("ResourceURL").ToString() : "—" %></td>
+                                        <td style="display:flex;gap:6px;">
+                                            <asp:LinkButton runat="server" CommandName="EditLesson" CommandArgument='<%# Eval("LessonID") %>' CssClass="btn btn--sm btn--outline" OnCommand="LessonAction_Command">Edit</asp:LinkButton>
+                                            <asp:LinkButton runat="server" CommandName="ManageQuiz" CommandArgument='<%# Eval("LessonID") + "|" + Eval("LessonTitle") %>' CssClass="btn btn--sm btn--outline" Visible='<%# Eval("LessonType").ToString() == "Quiz" %>' OnCommand="LessonAction_Command">Questions</asp:LinkButton>
+                                            <asp:LinkButton runat="server" CommandName="DeleteLesson" CommandArgument='<%# Eval("LessonID") %>' CssClass="btn btn--sm" style="background:#ef4444;color:white;border:2px solid #ef4444;" OnClientClick="return confirm('Delete lesson and all its data?');" OnCommand="LessonAction_Command">Delete</asp:LinkButton>
+                                        </td>
+                                    </tr>
+                                </ItemTemplate>
+                            </asp:Repeater>
+                        </tbody>
+                    </table>
+                    <asp:Panel ID="pnlNoLessons" runat="server" Visible="false">
+                        <div class="empty-state">No lessons. Select a course and add a lesson above.</div>
+                    </asp:Panel>
+                </div>
+            </div>
+
+            <!-- Support History -->
+            <div class="inst-section" id="section-support-history">
+                <div class="dash-page-header">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div><h1>Support History</h1><p>Your submitted support tickets.</p></div>
+                        <a href="Support.aspx" class="btn btn--primary btn--sm">New Ticket</a>
+                    </div>
+                </div>
+                <div class="admin-table-wrap">
+                    <table class="data-table">
+                        <thead><tr><th>#</th><th>Subject</th><th>Status</th><th>Date</th></tr></thead>
+                        <tbody>
+                            <asp:Repeater ID="rptInstTickets" runat="server">
+                                <ItemTemplate>
+                                    <tr>
+                                        <td><%# Eval("TicketID") %></td>
+                                        <td><%# Eval("Subject") %></td>
+                                        <td><span class="badge badge--<%# Eval("TicketStatus").ToString().ToLower().Replace(" ","-") %>"><%# Eval("TicketStatus") %></span></td>
+                                        <td><%# Eval("CreatedDate", "{0:dd MMM yyyy}") %></td>
+                                    </tr>
+                                </ItemTemplate>
+                            </asp:Repeater>
+                        </tbody>
+                    </table>
+                    <asp:Panel ID="pnlNoInstTickets" runat="server" Visible="false">
+                        <div class="empty-state">No tickets submitted yet.</div>
+                    </asp:Panel>
+                </div>
+            </div>
+
+            <!-- My Profile -->
+            <div class="inst-section" id="section-profile">
+                <div class="dash-page-header"><h1>My Profile</h1><p>Update your personal information.</p></div>
+                <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:32px;max-width:560px;">
+                    <div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;">
+                        <div class="sidebar__avatar" style="width:72px;height:72px;font-size:1.4rem;flex-shrink:0;"><asp:Literal ID="litProfileAvatar" runat="server" /></div>
+                        <div>
+                            <div style="font-weight:700;font-size:1.1rem;"><asp:Literal ID="litProfileName" runat="server" /></div>
+                            <div style="font-size:0.85rem;color:var(--text-light);"><asp:Literal ID="litProfileEmailDisp" runat="server" /></div>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                        <div>
+                            <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">First Name</label>
+                            <asp:TextBox ID="txtProfileFirstName" runat="server" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                        </div>
+                        <div>
+                            <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Last Name</label>
+                            <asp:TextBox ID="txtProfileLastName" runat="server" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                        </div>
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Avatar Initials</label>
+                        <asp:TextBox ID="txtProfileAvatar" runat="server" MaxLength="3" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" placeholder="e.g. JS" />
+                        <div style="font-size:0.78rem;color:var(--text-light);margin-top:4px;">2–3 characters or emoji shown in your avatar circle.</div>
+                    </div>
+                    <div style="margin-bottom:24px;">
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Email</label>
+                        <div style="padding:9px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg-light);font-size:0.9rem;color:var(--text-light);"><asp:Literal ID="litProfileEmailRO" runat="server" /></div>
+                        <div style="font-size:0.78rem;color:var(--text-light);margin-top:4px;">Email cannot be changed.</div>
+                    </div>
+                    <asp:Button ID="btnSaveProfile" runat="server" Text="Save Changes" CssClass="btn btn--primary btn--sm" OnClick="btnSaveProfile_Click" CausesValidation="false" />
+                    <asp:Label ID="lblProfileMsg" runat="server" style="margin-left:12px;font-size:0.85rem;" />
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="inst-section" id="section-settings">
+                <div class="dash-page-header"><h1>Settings</h1><p>Manage your account security.</p></div>
+                <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:32px;max-width:480px;">
+                    <h3 style="margin:0 0 20px;font-size:1rem;">Change Password</h3>
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Current Password</label>
+                        <asp:TextBox ID="txtCurrentPwd" runat="server" TextMode="Password" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                    </div>
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">New Password</label>
+                        <asp:TextBox ID="txtNewPwd" runat="server" TextMode="Password" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Confirm New Password</label>
+                        <asp:TextBox ID="txtConfirmPwd" runat="server" TextMode="Password" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.9rem;box-sizing:border-box;" />
+                    </div>
+                    <asp:Button ID="btnChangePassword" runat="server" Text="Update Password" CssClass="btn btn--primary btn--sm" OnClick="btnChangePassword_Click" CausesValidation="false" />
+                    <asp:Label ID="lblPwdMsg" runat="server" style="display:block;margin-top:10px;font-size:0.85rem;" />
+                </div>
+            </div>
+
         </main>
     </div>
 </asp:Content>
@@ -227,6 +449,16 @@ function showInstSection(name, el) {
     if (sec) sec.classList.add('active');
     document.querySelectorAll('.sidebar__nav-item').forEach(function (i) { i.classList.remove('active'); });
     if (el) el.classList.add('active');
+    var hdn = document.getElementById('<%= hdnActiveSection.ClientID %>');
+    if (hdn) hdn.value = name;
 }
-</script>
+
+(function () {
+    var hdn = document.getElementById('<%= hdnActiveSection.ClientID %>');
+    if (!hdn) return;
+    var active = hdn.value || 'overview';
+    var navEl = document.getElementById('nav-' + active);
+    showInstSection(active, navEl);
+})();
+    </script>
 </asp:Content>
