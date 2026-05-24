@@ -60,6 +60,10 @@
         .toggle-track.on { background:var(--primary); }
         .toggle-thumb { position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:white; transition:0.3s; }
         .toggle-track.on + .toggle-thumb { left:22px; }
+        
+        /* ── Certificates ── */
+        .cert-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+        .cert-card { background:linear-gradient(135deg,var(--primary),#7c3aed); color:white; border-radius:var(--radius-lg); padding:32px; text-align:center; }
 
         /* Dark mode */
         [data-theme="dark"] .dashboard-layout { background:#18191a; }
@@ -98,6 +102,10 @@
                 <div class="sidebar__nav-item" id="nav-my-courses" onclick="showDashSection('my-courses', this)">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>
                     My Courses
+                </div>
+                <div class="sidebar__nav-item" id="nav-certificates" onclick="showDashSection('certificates', this)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                    Certificates
                 </div>
                 <div class="sidebar__nav-item" id="nav-support-history" onclick="showDashSection('support-history', this)">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
@@ -194,6 +202,32 @@
                         </ItemTemplate>
                     </asp:Repeater>
                 </div>
+            </div>
+
+            <!-- Certificates -->
+            <div class="inst-section" id="section-certificates">
+                <div class="dash-page-header"><h1>My Certificates</h1><p>Download and share your achievements.</p></div>
+                <div class="cert-grid">
+                    <asp:Repeater ID="rptCertificates" runat="server">
+                        <ItemTemplate>
+                            <div class="cert-card">
+                                <div style="font-size:2rem;margin-bottom:12px;">🏆</div>
+                                <h3 style="color:white;margin-bottom:8px;">Certificate of Completion</h3>
+                                <p style="color:rgba(255,255,255,0.8);margin-bottom:8px;"><%# Eval("CourseTitle") %></p>
+                                <p style="color:rgba(255,255,255,0.65);font-size:0.82rem;margin-bottom:16px;">Completed <%# Eval("EnrollDate", "{0:dd MMM yyyy}") %></p>
+                                <button type="button" class="btn btn--white btn--sm">Download PDF</button>
+                            </div>
+                        </ItemTemplate>
+                    </asp:Repeater>
+                </div>
+                <asp:Panel ID="pnlNoCerts" runat="server" Visible="false">
+                    <div class="empty-state" style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);">
+                        <div style="font-size:2.5rem;margin-bottom:16px;">🏆</div>
+                        <p style="font-weight:600;color:var(--text-dark);margin-bottom:8px;">No certificates yet</p>
+                        <p style="font-size:0.88rem;">Complete a course to earn your first certificate.</p>
+                        <a href="Courses.aspx" class="btn btn--primary btn--sm" style="display:inline-block;margin-top:16px;">Browse Courses</a>
+                    </div>
+                </asp:Panel>
             </div>
 
             <!-- Support History -->
