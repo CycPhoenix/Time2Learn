@@ -280,11 +280,11 @@
                         <div class="filter-row">
                             <div class="inst-search">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                                <input type="text" placeholder="Search courses…" oninput="instSearchCourses(this.value)" />
+                                <input type="text" id="courseSearch" placeholder="Search courses…" oninput="instSearchCourses()" />
                             </div>
-                            <select class="inst-filter-select" onchange="instFilterCourses(this.value)">
+                            <select class="inst-filter-select" id="courseStatusFilter" onchange="instFilterCourses()">
                                 <option value="">All Status</option>
-                                <option value="published">Published</option>
+                                <option value="active">Active</option>
                                 <option value="draft">Draft</option>
                                 <option value="archived">Archived</option>
                             </select>
@@ -714,7 +714,7 @@
                     <label>Status</label>
                     <asp:DropDownList ID="ddlCourseStatus" runat="server">
                         <asp:ListItem Text="Draft" Value="Draft" />
-                        <asp:ListItem Text="Published" Value="Published" />
+                        <asp:ListItem Text="Active" Value="Active" />
                         <asp:ListItem Text="Archived" Value="Archived" />
                     </asp:DropDownList>
                 </div>
@@ -729,90 +729,100 @@
 
 <asp:Content ID="ScriptsContent" ContentPlaceHolderID="ScriptsContent" runat="server">
     <script>
-        // @ts-nocheck
-        function showInstSection(name, el) {
-            document.querySelectorAll('.inst-section').forEach(function (s) { s.classList.remove('active'); });
-            var sec = document.getElementById('section-' + name);
-            if (sec) sec.classList.add('active');
-            document.querySelectorAll('.sidebar__nav-item').forEach(function (i) { i.classList.remove('active'); });
-            if (el) el.classList.add('active');
-            var hdn = document.getElementById('<%= hdnActiveSection.ClientID %>');
+// @ts-nocheck
+function showInstSection(name, el) {
+    document.querySelectorAll('.inst-section').forEach(function (s) { s.classList.remove('active'); });
+    var sec = document.getElementById('section-' + name);
+    if (sec) sec.classList.add('active');
+    document.querySelectorAll('.sidebar__nav-item').forEach(function (i) { i.classList.remove('active'); });
+    if (el) el.classList.add('active');
+    var hdn = document.getElementById('<%= hdnActiveSection.ClientID %>');
             if (hdn) hdn.value = name;
+            // Reset My Courses filters so previously-filtered rows don't stay hidden
+            if (name === 'my-courses') resetCourseFilters();
+        }
+
+        function resetCourseFilters() {
+            var s = document.getElementById('courseSearch');
+            var f = document.getElementById('courseStatusFilter');
+            if (s) s.value = '';
+            if (f) f.value = '';
+            document.querySelectorAll('#tblMyCourses tbody tr').forEach(function (tr) { tr.style.display = ''; });
         }
 
         // Restore active section after postback
         (function () {
-    var hdn = document.getElementById('<%= hdnActiveSection.ClientID %>');
-    if (!hdn) return;
-    var active = hdn.value || 'overview';
-    var navEl = document.getElementById('nav-' + active);
-    showInstSection(active, navEl);
-})();
+            var hdn = document.getElementById('<%= hdnActiveSection.ClientID %>');
+            if (!hdn) return;
+            var active = hdn.value || 'overview';
+            var navEl = document.getElementById('nav-' + active);
+            showInstSection(active, navEl);
+        })();
 
-// Course modal
-function openCourseModal(isEdit) {
-    document.getElementById('courseModal').classList.add('open');
-    var t = document.getElementById('courseModalTitle');
-    if (t) t.textContent = isEdit ? 'Edit Course' : 'Add New Course';
-}
-function closeCourseModal() {
-    document.getElementById('courseModal').classList.remove('open');
-}
-// Restore modal open state after postback
-(function () {
-    var hdn = document.getElementById('<%= hdnShowCourseModal.ClientID %>');
-    if (hdn && hdn.value === 'true') {
-        var isEdit = document.getElementById('<%= hdnEditCourseID.ClientID %>').value !== '0';
-        openCourseModal(isEdit);
-    }
-})();
-// Close modal when clicking overlay background
-document.getElementById('courseModal').addEventListener('click', function (e) {
-    if (e.target === this) closeCourseModal();
-});
+        // Course modal
+        function openCourseModal(isEdit) {
+            document.getElementById('courseModal').classList.add('open');
+            var t = document.getElementById('courseModalTitle');
+            if (t) t.textContent = isEdit ? 'Edit Course' : 'Add New Course';
+        }
+        function closeCourseModal() {
+            document.getElementById('courseModal').classList.remove('open');
+        }
+        // Restore modal open state after postback
+        (function () {
+            var hdn = document.getElementById('<%= hdnShowCourseModal.ClientID %>');
+            if (hdn && hdn.value === 'true') {
+                var isEdit = document.getElementById('<%= hdnEditCourseID.ClientID %>').value !== '0';
+                openCourseModal(isEdit);
+            }
+        })();
+        // Close modal when clicking overlay background
+        document.getElementById('courseModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCourseModal();
+        });
 
-function toggleVideoField(type) {
-    var f = document.getElementById('videoUrlField');
-    if (f) f.style.display = (type === 'Video') ? 'block' : 'none';
-}
+        function toggleVideoField(type) {
+            var f = document.getElementById('videoUrlField');
+            if (f) f.style.display = (type === 'Video') ? 'block' : 'none';
+        }
 
-// My Courses search/filter
-function instSearchCourses(q) {
-    var ql = q.toLowerCase();
-    document.querySelectorAll('#tblMyCourses tbody tr').forEach(function(tr) {
-        tr.style.display = tr.dataset.title.includes(ql) ? '' : 'none';
-    });
-}
-function instFilterCourses(val) {
-    document.querySelectorAll('#tblMyCourses tbody tr').forEach(function(tr) {
-        tr.style.display = (!val || tr.dataset.status === val) ? '' : 'none';
-    });
-}
+        // My Courses search/filter — both criteria combined
+        function instApplyCoursesFilter() {
+            var ql  = ((document.getElementById('courseSearch')  || {}).value || '').toLowerCase();
+            var val = ((document.getElementById('courseStatusFilter') || {}).value || '');
+            document.querySelectorAll('#tblMyCourses tbody tr').forEach(function (tr) {
+                var matchTitle  = !ql  || (tr.dataset.title  || '').includes(ql);
+                var matchStatus = !val || (tr.dataset.status || '') === val;
+                tr.style.display = (matchTitle && matchStatus) ? '' : 'none';
+            });
+        }
+        function instSearchCourses() { instApplyCoursesFilter(); }
+        function instFilterCourses() { instApplyCoursesFilter(); }
 
-// Students filter
-function instFilterStudents() {
-    var q = (document.getElementById('studentSearch').value || '').toLowerCase();
-    var prog = document.getElementById('studentProgressFilter').value;
-    document.querySelectorAll('#tblStudents tbody tr').forEach(function (tr) {
-        var matchQ = !q || (tr.dataset.name || '').includes(q);
-        var pct = parseInt(tr.dataset.progress || '0', 10);
-        var matchP = !prog || (prog === 'completed' ? pct >= 100 : pct < 100);
-        tr.style.display = (matchQ && matchP) ? '' : 'none';
-    });
-}
+        // Students filter
+        function instFilterStudents() {
+            var q    = (document.getElementById('studentSearch').value || '').toLowerCase();
+            var prog = document.getElementById('studentProgressFilter').value;
+            document.querySelectorAll('#tblStudents tbody tr').forEach(function(tr) {
+                var matchQ = !q    || (tr.dataset.name || '').includes(q);
+                var pct    = parseInt(tr.dataset.progress || '0', 10);
+                var matchP = !prog || (prog === 'completed' ? pct >= 100 : pct < 100);
+                tr.style.display = (matchQ && matchP) ? '' : 'none';
+            });
+        }
 
-// Settings toggle
-function instToggle(wrap) {
-    var track = wrap.querySelector('.toggle-track');
-    track.classList.toggle('on');
-}
+        // Settings toggle
+        function instToggle(wrap) {
+            var track = wrap.querySelector('.toggle-track');
+            track.classList.toggle('on');
+        }
 
-// Support history: hide table when no rows
-(function() {
-    var tbl = document.getElementById('tblTickets');
-    if (!tbl) return;
-    var rows = tbl.querySelectorAll('tbody tr');
-    if (rows.length === 0) tbl.style.display = 'none';
-})();
+        // Support history: hide table when no rows
+        (function() {
+            var tbl = document.getElementById('tblTickets');
+            if (!tbl) return;
+            var rows = tbl.querySelectorAll('tbody tr');
+            if (rows.length === 0) tbl.style.display = 'none';
+        })();
     </script>
 </asp:Content>
