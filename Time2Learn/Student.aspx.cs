@@ -29,6 +29,7 @@ namespace Time2Learn
                 {
                     new System.Data.SqlClient.SqlParameter("@UID", userID)
                 });
+
             if (user.Rows.Count > 0)
             {
                 DataRow r = user.Rows[0];
@@ -86,6 +87,20 @@ namespace Time2Learn
                 });
             rptMyCourses.DataSource = mc;
             rptMyCourses.DataBind();
+
+            // Certificates (completed courses)
+            DataTable certs = DBHelper.ExecuteQuery(@"
+                SELECT c.CourseTitle, e.EnrollDate
+                FROM Enrollments e
+                INNER JOIN Courses c ON e.CourseID = c.CourseID
+                WHERE e.UserID = @UID AND e.OverallProgressPercentage >= 100
+                ORDER BY e.EnrollDate DESC",
+                new System.Data.SqlClient.SqlParameter[] {
+                    new System.Data.SqlClient.SqlParameter("@UID", userID)
+                });
+            rptCertificates.DataSource = certs;
+            rptCertificates.DataBind();
+            pnlNoCerts.Visible = certs.Rows.Count == 0;
 
             // Tickets
             DataTable tickets = DBHelper.ExecuteQuery(@"SELECT TicketID, Subject, TicketStatus, CreatedDate FROM Support_Tickets WHERE UserID = @UID ORDER BY CreatedDate DESC",
