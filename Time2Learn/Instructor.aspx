@@ -678,12 +678,12 @@ function toggleVideoField(type) {
 // My Courses search/filter
 function instSearchCourses(q) {
     var ql = q.toLowerCase();
-    document.querySelectorAll('#tblMyCourses tbody tr').forEach(function (tr) {
+    document.querySelectorAll('#tblMyCourses tbody tr').forEach(function(tr) {
         tr.style.display = tr.dataset.title.includes(ql) ? '' : 'none';
     });
 }
 function instFilterCourses(val) {
-    document.querySelectorAll('#tblMyCourses tbody tr').forEach(function (tr) {
+    document.querySelectorAll('#tblMyCourses tbody tr').forEach(function(tr) {
         tr.style.display = (!val || tr.dataset.status === val) ? '' : 'none';
     });
 }
@@ -707,7 +707,7 @@ function instToggle(wrap) {
 }
 
 // Support history: hide table when no rows
-(function () {
+(function() {
     var tbl = document.getElementById('tblTickets');
     if (!tbl) return;
     var rows = tbl.querySelectorAll('tbody tr');
