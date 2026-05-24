@@ -253,7 +253,7 @@ namespace Time2Learn
                 if (lessonType == "Video" && !string.IsNullOrEmpty(videoURL))
                 {
                     DBHelper.ExecuteNonQuery(
-                        "INSERT INTO Lesson_Resources (LessonID, ResourceURL, ResourceType) VALUES (@LID, @URL, 'Video')",
+                        "INSERT INTO Lesson_Resources (LessonID, ResourceURL, ResourceType, Status) VALUES (@LID, @URL, 'Video', 'Published')",
                         new SqlParameter[] {
                             new SqlParameter("@LID", lessonID),
                             new SqlParameter("@URL", videoURL)
