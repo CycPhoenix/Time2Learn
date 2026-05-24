@@ -571,5 +571,209 @@ namespace Time2Learn
             lblPwdMsg.Text = "✓ Password updated successfully.";
             lblPwdMsg.ForeColor = System.Drawing.Color.Green;
         }
+
+        private void LoadCategories()
+        {
+            DataTable cats = DBHelper.ExecuteQuery(
+                "SELECT CategoryID, CategoryName FROM Categories ORDER BY CategoryName", null);
+            string selected = ddlCourseCategory.SelectedValue;
+            ddlCourseCategory.Items.Clear();
+            ddlCourseCategory.Items.Add(new System.Web.UI.WebControls.ListItem("— Select —", ""));
+            foreach (DataRow r in cats.Rows)
+                ddlCourseCategory.Items.Add(new System.Web.UI.WebControls.ListItem(r["CategoryName"].ToString(), r["CategoryID"].ToString()));
+            if (!string.IsNullOrEmpty(selected))
+            {
+                var item = ddlCourseCategory.Items.FindByValue(selected);
+                if (item != null) item.Selected = true;
+            }
+        }
+
+        private void OpenCourseModal(int courseID = 0)
+        {
+            LoadCategories();
+            hdnEditCourseID.Value = courseID.ToString();
+            hdnShowCourseModal.Value = "true";
+            hdnActiveSection.Value = "my-courses";
+
+            if (courseID > 0)
+            {
+                DataTable c = DBHelper.ExecuteQuery(
+                    "SELECT CourseTitle, CategoryID, DifficultyLevel, Price, CourseDescription, CourseStatus FROM Courses WHERE CourseID = @CID",
+                    new SqlParameter[] { new SqlParameter("@CID", courseID) });
+                if (c.Rows.Count > 0)
+                {
+                    DataRow r = c.Rows[0];
+                    txtCourseTitle.Text = r["CourseTitle"].ToString();
+                    txtCoursePrice.Text = r["Price"].ToString();
+                    txtCourseDesc.Text = r["CourseDescription"].ToString();
+
+                    var catItem = ddlCourseCategory.Items.FindByValue(r["CategoryID"].ToString());
+                    if (catItem != null) catItem.Selected = true;
+
+                    var lvlItem = ddlCourseLevel.Items.FindByValue(r["DifficultyLevel"].ToString());
+                    if (lvlItem != null) lvlItem.Selected = true;
+
+                    var stItem = ddlCourseStatus.Items.FindByValue(r["CourseStatus"].ToString());
+                    if (stItem != null) stItem.Selected = true;
+                }
+            }
+            else
+            {
+                txtCourseTitle.Text = "";
+                txtCoursePrice.Text = "0";
+                txtCourseDesc.Text = "";
+                ddlCourseStatus.SelectedIndex = 0; // Draft
+            }
+        }
+
+        protected void btnShowAddCourse_Click(object sender, EventArgs e)
+        {
+            lblCourseMsg.Visible = false;
+            OpenCourseModal(0);
+            LoadData();
+        }
+
+        protected void CourseAction_Command(object sender, System.Web.UI.WebControls.RepeaterCommandEventArgs e)
+        {
+            int courseID = 0;
+            int.TryParse(e.CommandArgument.ToString(), out courseID);
+
+            if (e.CommandName == "EditCourse")
+            {
+                lblCourseMsg.Visible = false;
+                OpenCourseModal(courseID);
+                LoadData();
+            }
+            else if (e.CommandName == "DeleteCourse")
+            {
+                int userID = AuthHelper.GetUserID();
+                // Verify ownership before delete
+                object own = DBHelper.ExecuteScalar(
+                    "SELECT CourseID FROM Courses WHERE CourseID = @CID AND CreatedBy = @UID",
+                    new SqlParameter[] {
+                        new SqlParameter("@CID", courseID),
+                        new SqlParameter("@UID", userID)
+                    });
+                if (own != null)
+                {
+                    // Cascade: Quiz → Lesson_Resources → Lessons → Courses
+                    DBHelper.ExecuteNonQuery(
+                        "DELETE q FROM Quiz q INNER JOIN Lessons l ON q.LessonID = l.LessonID WHERE l.CourseID = @CID",
+                        new SqlParameter[] { new SqlParameter("@CID", courseID) });
+                    DBHelper.ExecuteNonQuery(
+                        "DELETE lr FROM Lesson_Resources lr INNER JOIN Lessons l ON lr.LessonID = l.LessonID WHERE l.CourseID = @CID",
+                        new SqlParameter[] { new SqlParameter("@CID", courseID) });
+                    DBHelper.ExecuteNonQuery(
+                        "DELETE FROM Lessons WHERE CourseID = @CID",
+                        new SqlParameter[] { new SqlParameter("@CID", courseID) });
+                    DBHelper.ExecuteNonQuery(
+                        "DELETE FROM Enrollments WHERE CourseID = @CID",
+                        new SqlParameter[] { new SqlParameter("@CID", courseID) });
+                    DBHelper.ExecuteNonQuery(
+                        "DELETE FROM Review WHERE CourseID = @CID",
+                        new SqlParameter[] { new SqlParameter("@CID", courseID) });
+                    DBHelper.ExecuteNonQuery(
+                        "DELETE FROM Courses WHERE CourseID = @CID AND CreatedBy = @UID",
+                        new SqlParameter[] {
+                            new SqlParameter("@CID", courseID),
+                            new SqlParameter("@UID", userID)
+                        });
+                }
+                hdnActiveSection.Value = "my-courses";
+                LoadData();
+            }
+        }
+
+        protected void btnSaveCourse_Click(object sender, EventArgs e)
+        {
+            string title = txtCourseTitle.Text.Trim();
+            string catID = ddlCourseCategory.SelectedValue;
+            string level = ddlCourseLevel.SelectedValue;
+            string priceStr = txtCoursePrice.Text.Trim();
+            string desc = txtCourseDesc.Text.Trim();
+            string status = ddlCourseStatus.SelectedValue;
+
+            hdnShowCourseModal.Value = "true";
+            hdnActiveSection.Value = "my-courses";
+
+            if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(catID))
+            {
+                lblCourseMsg.Text = "Course Title and Category are required.";
+                lblCourseMsg.Visible = true;
+                LoadCategories();
+                LoadData();
+                return;
+            }
+
+            decimal price = 0;
+            decimal.TryParse(priceStr, out price);
+
+            int courseID = 0;
+            int.TryParse(hdnEditCourseID.Value, out courseID);
+            int userID = AuthHelper.GetUserID();
+
+            if (courseID == 0)
+            {
+                // INSERT
+                DBHelper.ExecuteNonQuery(@"
+                    INSERT INTO Courses (CourseTitle, CategoryID, DifficultyLevel, Price, CourseDescription, CourseStatus, CreatedBy)
+                    VALUES (@Title, @CatID, @Level, @Price, @Desc, @Status, @UID)",
+                    new SqlParameter[] {
+                        new SqlParameter("@Title",  title),
+                        new SqlParameter("@CatID",  int.Parse(catID)),
+                        new SqlParameter("@Level",  level),
+                        new SqlParameter("@Price",  price),
+                        new SqlParameter("@Desc",   desc),
+                        new SqlParameter("@Status", status),
+                        new SqlParameter("@UID",    userID)
+                    });
+            }
+            else
+            {
+                // UPDATE — verify ownership
+                object own = DBHelper.ExecuteScalar(
+                    "SELECT CourseID FROM Courses WHERE CourseID = @CID AND CreatedBy = @UID",
+                    new SqlParameter[] {
+                        new SqlParameter("@CID", courseID),
+                        new SqlParameter("@UID", userID)
+                    });
+                if (own == null)
+                {
+                    lblCourseMsg.Text = "You do not own this course.";
+                    lblCourseMsg.Visible = true;
+                    LoadData();
+                    return;
+                }
+                DBHelper.ExecuteNonQuery(@"
+                    UPDATE Courses SET CourseTitle = @Title, CategoryID = @CatID, DifficultyLevel = @Level,
+                        Price = @Price, CourseDescription = @Desc, CourseStatus = @Status
+                    WHERE CourseID = @CID AND CreatedBy = @UID",
+                    new SqlParameter[] {
+                        new SqlParameter("@Title",  title),
+                        new SqlParameter("@CatID",  int.Parse(catID)),
+                        new SqlParameter("@Level",  level),
+                        new SqlParameter("@Price",  price),
+                        new SqlParameter("@Desc",   desc),
+                        new SqlParameter("@Status", status),
+                        new SqlParameter("@CID",    courseID),
+                        new SqlParameter("@UID",    userID)
+                    });
+            }
+
+            // Close modal after success
+            hdnShowCourseModal.Value = "false";
+            hdnEditCourseID.Value = "0";
+            lblCourseMsg.Visible = false;
+            LoadData();
+        }
+
+        protected void btnCancelCourse_Click(object sender, EventArgs e)
+        {
+            hdnShowCourseModal.Value = "false";
+            hdnEditCourseID.Value = "0";
+            lblCourseMsg.Visible = false;
+            hdnActiveSection.Value = "my-courses";
+            LoadData();
+        }
     }
 }
