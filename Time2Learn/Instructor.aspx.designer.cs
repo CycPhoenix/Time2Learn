@@ -87,6 +87,15 @@ namespace Time2Learn
         protected global::System.Web.UI.WebControls.Literal litAvgRating;
 
         /// <summary>
+        /// litReviewCount control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal litReviewCount;
+
+        /// <summary>
         /// rptOverviewCourses control.
         /// </summary>
         /// <remarks>
@@ -103,42 +112,6 @@ namespace Time2Learn
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Repeater rptMyCourses;
-
-        /// <summary>
-        /// rptStudents control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptStudents;
-
-        /// <summary>
-        /// pnlNoStudents control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlNoStudents;
-
-        /// <summary>
-        /// rptReviews control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptReviews;
-
-        /// <summary>
-        /// pnlNoReviews control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlNoReviews;
 
         /// <summary>
         /// hdnUploadCourseID control.
@@ -411,13 +384,40 @@ namespace Time2Learn
         protected global::System.Web.UI.WebControls.Panel pnlNoLessons;
 
         /// <summary>
-        /// rptInstTickets control.
+        /// rptStudents control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptInstTickets;
+        protected global::System.Web.UI.WebControls.Repeater rptStudents;
+
+        /// <summary>
+        /// pnlNoStudents control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlNoStudents;
+
+        /// <summary>
+        /// rptReviews control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater rptReviews;
+
+        /// <summary>
+        /// pnlNoReviews control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlNoReviews;
 
         /// <summary>
         /// pnlNoInstTickets control.
@@ -427,6 +427,15 @@ namespace Time2Learn
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Panel pnlNoInstTickets;
+
+        /// <summary>
+        /// rptInstTickets control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater rptInstTickets;
 
         /// <summary>
         /// litProfileAvatar control.
