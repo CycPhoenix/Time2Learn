@@ -154,9 +154,9 @@
 
             <!-- Tabs -->
             <div class="tab-bar">
-                <button class="tab-btn active" onclick="switchTab(this,'overview')">Overview</button>
-                <button class="tab-btn" onclick="switchTab(this,'curriculum')">Curriculum</button>
-                <button class="tab-btn" onclick="switchTab(this,'reviews')">Reviews</button>
+                <button type="button" class="tab-btn active" onclick="switchTab(this,'overview')">Overview</button>
+                <button type="button" class="tab-btn" onclick="switchTab(this,'curriculum')">Curriculum</button>
+                <button type="button" class="tab-btn" onclick="switchTab(this,'reviews')">Reviews</button>
             </div>
 
             <!-- Overview Tab -->
@@ -190,7 +190,7 @@
             <div class="tab-panel" id="tab-curriculum">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
                     <div><strong><asp:Literal ID="litLessonCount" runat="server" /> lessons</strong></div>
-                    <button onclick="expandAll()" style="color:var(--primary);font-weight:600;font-size:0.9rem;background:none;border:none;cursor:pointer;">Expand All</button>
+                    <button type="button" onclick="expandAll()" style="color:var(--primary);font-weight:600;font-size:0.9rem;background:none;border:none;cursor:pointer;">Expand All</button>
                 </div>
 
                 <div class="curriculum">
