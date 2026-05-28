@@ -156,7 +156,7 @@
         </footer>
         <!-- ===== END FOOTER ===== -->
 
-        <script src="~/Scripts/script.js"></script>
+        <script src="<%= ResolveUrl("~/Scripts/script.js") %>"></script>
         <asp:ContentPlaceHolder ID="ScriptsContent" runat="server" />
         <script>
             // @ts-nocheck
