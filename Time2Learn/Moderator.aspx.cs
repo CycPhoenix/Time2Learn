@@ -44,19 +44,40 @@ namespace Time2Learn
             litAnnCount.Text = annCount?.ToString() ?? "0";
 
             // Recent threads
-            DataTable recent = DBHelper.ExecuteQuery(@"SELECT TOP 5 t.ThreadID, t.Title, t.CreatedAt, u.FirstName + ' ' + u.LastName AS AuthorName, cat.CategoryName, (SELECT COUNT(*) FROM Discussion_Posts p WHERE p.ThreadID = t.ThreadID) AS PostCount FROM Discussion_Threads t INNER JOIN Users u ON t.UserID = u.UserID INNER JOIN Categories cat ON t.CategoryID = cat.CategoryID ORDER BY t.CreatedAt DESC");
+            string sqlRecent = @"SELECT TOP 5 t.ThreadID, t.Title, t.CreatedAt,
+                u.FirstName + ' ' + u.LastName AS AuthorName,
+                cat.CategoryName,
+                (SELECT COUNT(*) FROM Discussion_Posts p WHERE p.ThreadID = t.ThreadID) AS PostCount
+                FROM Discussion_Threads t
+                INNER JOIN Users u ON t.UserID = u.UserID
+                INNER JOIN Categories cat ON t.CategoryID = cat.CategoryID
+                ORDER BY t.CreatedAt DESC";
+            DataTable recent = DBHelper.ExecuteQuery(sqlRecent);
             rptRecentThreads.DataSource = recent;
             rptRecentThreads.DataBind();
 
             // All threads
-            DataTable allThreads = DBHelper.ExecuteQuery(@"SELECT t.ThreadID, t.Title, t.CreatedAt, u.FirstName + ' ' + u.LastName AS AuthorName, cat.CategoryName, (SELECT COUNT(*) FROM Discussion_Posts p WHERE p.ThreadID = t.ThreadID) AS PostCount FROM Discussion_Threads t INNER JOIN Users u ON t.UserID = u.UserID INNER JOIN Categories cat ON t.CategoryID = cat.CategoryID ORDER BY t.CreatedAt DESC");
+            string sqlAll = @"SELECT t.ThreadID, t.Title, t.CreatedAt,
+                u.FirstName + ' ' + u.LastName AS AuthorName,
+                cat.CategoryName,
+                (SELECT COUNT(*) FROM Discussion_Posts p WHERE p.ThreadID = t.ThreadID) AS PostCount
+                FROM Discussion_Threads t
+                INNER JOIN Users u ON t.UserID = u.UserID
+                INNER JOIN Categories cat ON t.CategoryID = cat.CategoryID
+                ORDER BY t.CreatedAt DESC";
+            DataTable allThreads = DBHelper.ExecuteQuery(sqlAll);
             litAllThreadCount.Text = allThreads.Rows.Count.ToString();
             pnlNoThreads.Visible = allThreads.Rows.Count == 0;
             rptThreads.DataSource = allThreads;
             rptThreads.DataBind();
 
             // Announcements
-            DataTable anns = DBHelper.ExecuteQuery("SELECT a.AnnouncementID, a.Title, a.CreatedAt, u.FirstName + ' ' + u.LastName AS AuthorName FROM Announcements a INNER JOIN Users u ON a.AuthorID = u.UserID ORDER BY a.CreatedAt DESC");
+            string sqlAnn = @"SELECT a.AnnouncementID, a.Title, a.CreatedAt,
+                u.FirstName + ' ' + u.LastName AS AuthorName
+                FROM Announcements a
+                INNER JOIN Users u ON a.AuthorID = u.UserID
+                ORDER BY a.CreatedAt DESC";
+            DataTable anns = DBHelper.ExecuteQuery(sqlAnn);
             pnlNoAnn.Visible = anns.Rows.Count == 0;
             rptAnnouncements.DataSource = anns;
             rptAnnouncements.DataBind();
