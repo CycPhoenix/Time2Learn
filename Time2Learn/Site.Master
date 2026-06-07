@@ -156,8 +156,27 @@
         </footer>
         <!-- ===== END FOOTER ===== -->
 
+        <!-- Logout Confirmation Modal -->
+        <div class="modal-overlay" id="logoutModal">
+            <div class="modal" style="max-width:400px;text-align:center;padding:40px 32px;">
+                <div style="font-size:2.4rem;margin-bottom:16px;">🔒</div>
+                <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;color:var(--text-dark);">Log Out?</div>
+                <p style="font-size:0.95rem;color:var(--text-mid);margin-bottom:28px;line-height:1.6;">Are you sure you want to log out?</p>
+                <div style="display:flex;gap:12px;justify-content:center;">
+                    <button type="button" class="btn btn--outline btn--sm" onclick="closeLogoutModal()">Cancel</button>
+                    <button type="button" class="btn btn--sm" style="background:#ef4444;color:white;border:2px solid #ef4444;padding:8px 20px;" onclick="confirmLogout()">Yes, Log Out</button>
+                </div>
+            </div>
+        </div>
+
         <script src="<%= ResolveUrl("~/Scripts/script.js") %>"></script>
         <asp:ContentPlaceHolder ID="ScriptsContent" runat="server" />
+        <script>
+            function openLogoutModal() { document.getElementById('logoutModal').classList.add('open'); }
+            function closeLogoutModal() { document.getElementById('logoutModal').classList.remove('open'); }
+            function confirmLogout() { window.location.href = '<%= ResolveUrl("~/Logout.aspx") %>'; }
+            document.getElementById('logoutModal').addEventListener('click', function (e) { if (e.target === this) closeLogoutModal(); });
+        </script>
         <script>
             // @ts-nocheck
             // Scroll-reveal
