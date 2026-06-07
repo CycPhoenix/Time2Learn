@@ -276,34 +276,39 @@ namespace Time2Learn
             bool isPublished = ddlFaqPublished.SelectedValue == "1";
             int editID = Convert.ToInt32(hdnEditFaqID.Value);
 
-            if (!string.IsNullOrEmpty(question) && !string.IsNullOrEmpty(answer))
+            if (string.IsNullOrEmpty(question) || string.IsNullOrEmpty(answer))
             {
-                if (editID == 0)
-                {
-                    DBHelper.ExecuteNonQuery(
-                        "INSERT INTO FAQs (Category, Question, Answer, IsPublished, CreatedDate) VALUES (@Cat, @Q, @A, @Pub, GETDATE())",
-                        new SqlParameter[] {
-                            new SqlParameter("@Cat", category),
-                            new SqlParameter("@Q", question),
-                            new SqlParameter("@A", answer),
-                            new SqlParameter("@Pub", isPublished)
-                        });
-                }
-                else
-                {
-                    DBHelper.ExecuteNonQuery(
-                        "UPDATE FAQs SET Category = @Cat, Question = @Q, Answer = @A, IsPublished = @Pub WHERE FaqID = @ID",
-                        new SqlParameter[] {
-                            new SqlParameter("@Cat", category),
-                            new SqlParameter("@Q", question),
-                            new SqlParameter("@A", answer),
-                            new SqlParameter("@Pub", isPublished),
-                            new SqlParameter("@ID", editID)
-                        });
-                }
-                pnlFaqForm.Visible = false;
-                hdnEditFaqID.Value = "0";
+                lblFaqMsg.Text = "Question and Answer are required.";
+                lblFaqMsg.ForeColor = System.Drawing.Color.Red;
+                hdnActiveSection.Value = "faq";
+                return;
             }
+
+            if (editID == 0)
+            {
+                DBHelper.ExecuteNonQuery(
+                    "INSERT INTO FAQs (Category, Question, Answer, IsPublished, CreatedDate) VALUES (@Cat, @Q, @A, @Pub, GETDATE())",
+                    new SqlParameter[] {
+                        new SqlParameter("@Cat", category),
+                        new SqlParameter("@Q", question),
+                        new SqlParameter("@A", answer),
+                        new SqlParameter("@Pub", isPublished)
+                    });
+            }
+            else
+            {
+                DBHelper.ExecuteNonQuery(
+                    "UPDATE FAQs SET Category = @Cat, Question = @Q, Answer = @A, IsPublished = @Pub WHERE FaqID = @ID",
+                    new SqlParameter[] {
+                        new SqlParameter("@Cat", category),
+                        new SqlParameter("@Q", question),
+                        new SqlParameter("@A", answer),
+                        new SqlParameter("@Pub", isPublished),
+                        new SqlParameter("@ID", editID)
+                    });
+            }
+            pnlFaqForm.Visible = false;
+            hdnEditFaqID.Value = "0";
             hdnActiveSection.Value = "faq";
             LoadData();
         }
@@ -368,32 +373,38 @@ namespace Time2Learn
             string status = ddlKBStatus.SelectedValue;
             int editID = Convert.ToInt32(hdnEditKBID.Value);
 
-            if (!string.IsNullOrEmpty(topic) && !string.IsNullOrEmpty(response))
+            if (string.IsNullOrEmpty(topic) || string.IsNullOrEmpty(response))
             {
-                if (editID == 0)
-                {
-                    DBHelper.ExecuteNonQuery(
-                        "INSERT INTO Knowledge_Base (Topic, ResponseSummary, Status, CreatedAt) VALUES (@T, @R, @S, GETDATE())",
-                        new SqlParameter[] {
-                            new SqlParameter("@T", topic),
-                            new SqlParameter("@R", response),
-                            new SqlParameter("@S", status)
-                        });
-                }
-                else
-                {
-                    DBHelper.ExecuteNonQuery(
-                        "UPDATE Knowledge_Base SET Topic = @T, ResponseSummary = @R, Status = @S, UpdatedAt = GETDATE() WHERE KnowledgeBaseID = @ID",
-                        new SqlParameter[] {
-                            new SqlParameter("@T", topic),
-                            new SqlParameter("@R", response),
-                            new SqlParameter("@S", status),
-                            new SqlParameter("@ID", editID)
-                        });
-                }
-                pnlKBForm.Visible = false;
-                hdnEditKBID.Value = "0";
+                lblKBMsg.Text = "Topic and Response are required.";
+                lblKBMsg.ForeColor = System.Drawing.Color.Red;
+                hdnActiveSection.Value = "chatbot";
+                hdnChatbotTab.Value = "kb";
+                return;
             }
+
+            if (editID == 0)
+            {
+                DBHelper.ExecuteNonQuery(
+                    "INSERT INTO Knowledge_Base (Topic, ResponseSummary, Status, CreatedAt) VALUES (@T, @R, @S, GETDATE())",
+                    new SqlParameter[] {
+                        new SqlParameter("@T", topic),
+                        new SqlParameter("@R", response),
+                        new SqlParameter("@S", status)
+                    });
+            }
+            else
+            {
+                DBHelper.ExecuteNonQuery(
+                    "UPDATE Knowledge_Base SET Topic = @T, ResponseSummary = @R, Status = @S, UpdatedAt = GETDATE() WHERE KnowledgeBaseID = @ID",
+                    new SqlParameter[] {
+                        new SqlParameter("@T", topic),
+                        new SqlParameter("@R", response),
+                        new SqlParameter("@S", status),
+                        new SqlParameter("@ID", editID)
+                    });
+            }
+            pnlKBForm.Visible = false;
+            hdnEditKBID.Value = "0";
             hdnActiveSection.Value = "chatbot";
             hdnChatbotTab.Value = "kb";
             LoadData();
