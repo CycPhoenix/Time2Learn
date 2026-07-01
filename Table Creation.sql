@@ -15,6 +15,7 @@ CREATE TABLE Users (
     PasswordHash NVARCHAR(255) NOT NULL,
     RegistrationDate DATETIME2 NOT NULL,
     AccountStatus NVARCHAR(20) NOT NULL,
+    Avatar NVARCHAR(10) NULL,
 
     CONSTRAINT FK_Users_Roles
         FOREIGN KEY (RoleID) REFERENCES Roles(RoleID),
@@ -89,9 +90,13 @@ CREATE TABLE Lessons (
     CourseID INT NOT NULL,
     LessonTitle NVARCHAR(255) NOT NULL,
     LessonOrder INT NOT NULL,
+    LessonType NVARCHAR(20) NOT NULL DEFAULT 'Video',
 
     CONSTRAINT FK_Lessons_Courses
-        FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
+        FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),
+
+    CONSTRAINT CK_Lessons_LessonType
+        CHECK (LessonType IN ('Video', 'Quiz', 'Coding', 'Lab'))
 );
 GO
 
@@ -376,7 +381,20 @@ CREATE TABLE Bio (
 );
 GO
 
--- 23. Instructor --
+-- 23. Announcements --
+CREATE TABLE Announcements (
+    AnnouncementID INT IDENTITY(1,1) PRIMARY KEY,
+    Title NVARCHAR(255) NOT NULL,
+    Content NVARCHAR(MAX) NOT NULL,
+    AuthorID INT NOT NULL,
+    CreatedAt DATETIME2 NOT NULL,
+
+    CONSTRAINT FK_Announcements_Users
+        FOREIGN KEY (AuthorID) REFERENCES Users(UserID)
+);
+GO
+
+-- 24. Instructor --
 CREATE TABLE Instructor (
     InstructorID INT IDENTITY(1,1) PRIMARY KEY,
     UserID INT NOT NULL,
