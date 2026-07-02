@@ -37,6 +37,7 @@ ehthumbs.db
 *.temp
 
 # Secrets — never commit
+Web.config
 Web.config.user
 *.env
 secrets.json
