@@ -76,11 +76,19 @@
 <asp:Content ID="ScriptsContent" ContentPlaceHolderID="ScriptsContent" runat="server">
     <script>
 // @ts-nocheck
+function formatMessage(text) {
+    var escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    escaped = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    escaped = escaped.replace(/\n/g, '<br>');
+    escaped = escaped.replace(/ (\d+\.\s)/g, '<br>$1');
+    return escaped;
+}
+
 function addMessage(text, isUser) {
     var msgs = document.getElementById('chatMessages');
     var div = document.createElement('div');
     div.className = 'chat-msg ' + (isUser ? 'chat-msg--user' : 'chat-msg--bot');
-    div.innerHTML = '<div class="chat-msg__avatar">' + (isUser ? '👤' : '🤖') + '</div><div class="chat-msg__bubble">' + text + '</div>';
+    div.innerHTML = '<div class="chat-msg__avatar">' + (isUser ? '👤' : '🤖') + '</div><div class="chat-msg__bubble">' + formatMessage(text) + '</div>';
     msgs.appendChild(div);
     msgs.scrollTop = msgs.scrollHeight;
 }
